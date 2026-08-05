@@ -278,7 +278,120 @@ body {
   text-align: center; padding: 24px;
   color: var(--text2); font-size: 0.78rem;
 }
-</style>
+
+/* ====== Menu Grid (guest view) ====== */
+.menu-grid-section {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 4px;
+}
+.menu-grid-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+.menu-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: var(--shadow);
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.menu-card:active { transform: scale(0.97); }
+.menu-card.checked {
+  border-color: var(--accent);
+  background: var(--tag-bg);
+}
+.menu-card .check-mark {
+  position: absolute;
+  top: 6px; right: 8px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.65rem;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.menu-card.checked .check-mark { opacity: 1; transform: scale(1); }
+.menu-card .menu-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  animation-duration: 2.5s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+.menu-card .menu-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+/* Icon animations */
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } 60% { transform: translateY(-2px); } }
+@keyframes sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+.anim-float { animation-name: float; }
+.anim-wiggle { animation-name: wiggle; }
+.anim-pulse { animation-name: pulse; }
+.anim-bounce { animation-name: bounce; }
+.anim-sway { animation-name: sway; }
+
+.btn-list {
+  display: block;
+  margin: 20px auto;
+  padding: 12px 32px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(224,123,57,0.25);
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s;
+}
+.btn-list:active { transform: scale(0.97); }
+.btn-list:disabled { opacity: 0.4; pointer-events: none; }
+
+.list-result-area {
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Divider */
+.section-divider {
+  max-width: 500px;
+  margin: 24px auto;
+  border: none;
+  border-top: 1px dashed var(--border);
+}</style>
 </head>
 <body>
 
@@ -309,6 +422,15 @@ body {
     <button class="btn-random" onclick="randomPick('resultArea')">🎰 随机点菜</button>
     <div class="dish-count" id="dishCount">共 0 道菜可选</div>
     <div class="result-area" id="resultArea"></div>
+
+    <!-- Menu Grid -->
+    <hr class="section-divider" id="menuDivider">
+    <div class="menu-grid-section" id="menuGridSection">
+      <div class="menu-grid-title">📋 全部菜单</div>
+      <div class="menu-grid" id="menuGrid"></div>
+      <button class="btn-list" id="btnGenerateList" onclick="generateList()" disabled>查看做法</button>
+      <div class="list-result-area" id="listResultArea"></div>
+    </div>
   </div>
 
   <!-- Editor Panel (hidden by default) -->
@@ -445,9 +567,142 @@ function setStatus(msg, cls) {
 // === Render ===
 function renderAll() {
   renderDishList();
+  renderMenuGrid();
   document.getElementById('dishCount').textContent = '共 ' + dishes.length + ' 道菜可选';
   document.getElementById('editCount').textContent = dishes.length;
   setStatus('共 ' + dishes.length + ' 道菜', '');
+}
+
+// === Icon mapping ===
+var EMOJI_MAP = [
+  { keys: ['虾'], emoji: '🦐' },
+  { keys: ['蟹'], emoji: '🦀' },
+  { keys: ['鱼', '鲈', '鲤', '鲫', '鳕', '鲳', '鳗', '鲑', '鲍', '带鱼', '黄鱼'], emoji: '🐟' },
+  { keys: ['鸡', '鸭', '鹅', '鸽'], emoji: '🍗' },
+  { keys: ['牛'], emoji: '🥩' },
+  { keys: ['羊'], emoji: '🐑' },
+  { keys: ['猪', '排骨', '红烧肉', '扣肉', '腊肉', '五花', '里脊', '肘子'], emoji: '🥩' },
+  { keys: ['蛋'], emoji: '🥚' },
+  { keys: ['豆腐', '豆干', '豆皮', '腐竹'], emoji: '🫘' },
+  { keys: ['番茄', '西红柿'], emoji: '🍅' },
+  { keys: ['土豆', '马铃薯', '薯条'], emoji: '🥔' },
+  { keys: ['面', '粉', '米线', '河粉', '凉皮'], emoji: '🍜' },
+  { keys: ['饭', '米', '粥', '炒饭', '煲仔饭', '盖浇'], emoji: '🍚' },
+  { keys: ['汤', '羹'], emoji: '🍲' },
+  { keys: ['饺子', '水饺', '煎饺'], emoji: '🥟' },
+  { keys: ['包子', '馒头', '花卷'], emoji: '🥟' },
+  { keys: ['火锅', '麻辣烫', '冒菜'], emoji: '🍲' },
+  { keys: ['凉拌', '沙拉'], emoji: '🥗' },
+  { keys: ['烤', '烧', 'BBQ', '串'], emoji: '🍖' },
+  { keys: ['蒸'], emoji: '🥟' },
+  { keys: ['煲', '炖', '焖'], emoji: '🥘' },
+  { keys: ['辣', '麻辣', '香辣'], emoji: '🌶️' },
+  { keys: ['蒜'], emoji: '🧄' },
+  { keys: ['葱', '洋葱'], emoji: '🧅' },
+  { keys: ['菜', '蔬', '青菜', '白菜', '菠菜', '生菜', '油菜', '空心菜'], emoji: '🥬' },
+  { keys: ['菇', '菌', '蘑菇', '香菇', '金针菇'], emoji: '🍄' },
+  { keys: ['瓜', '黄瓜', '冬瓜', '南瓜', '苦瓜', '丝瓜'], emoji: '🥒' },
+  { keys: ['茄子'], emoji: '🍆' },
+  { keys: ['萝卜', '胡萝卜'], emoji: '🥕' },
+  { keys: ['玉米'], emoji: '🌽' },
+  { keys: ['虾仁', '海鲜', '贝', '蛤', '蚝', '蛏', '扇贝'], emoji: '🦞' },
+  { keys: ['甜品', '糖', '甜', '蛋糕', '冰淇淋'], emoji: '🍰' },
+  { keys: ['水果', '苹果', '梨', '橙', '西瓜', '葡萄', '草莓', '芒果'], emoji: '🍎' },
+  { keys: ['炒', '爆', '熘', '干煸', '炝'], emoji: '🍳' },
+];
+
+var ANIMS = ['anim-float', 'anim-wiggle', 'anim-pulse', 'anim-bounce', 'anim-sway'];
+
+function getIcon(name) {
+  for (var i = 0; i < EMOJI_MAP.length; i++) {
+    for (var j = 0; j < EMOJI_MAP[i].keys.length; j++) {
+      if (name.indexOf(EMOJI_MAP[i].keys[j]) !== -1) return EMOJI_MAP[i].emoji;
+    }
+  }
+  return '🍽️';
+}
+
+function getAnim(name) {
+  var hash = 0;
+  for (var i = 0; i < name.length; i++) { hash = ((hash << 5) - hash) + name.charCodeAt(i); hash |= 0; }
+  return ANIMS[Math.abs(hash) % ANIMS.length];
+}
+
+var checkedDishes = {};
+
+function renderMenuGrid() {
+  var grid = document.getElementById('menuGrid');
+  var btn = document.getElementById('btnGenerateList');
+  var divider = document.getElementById('menuDivider');
+  var section = document.getElementById('menuGridSection');
+
+  if (dishes.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = '';
+  divider.style.display = '';
+
+  grid.innerHTML = dishes.map(function(d, idx) {
+    var icon = getIcon(d.name);
+    var anim = getAnim(d.name);
+    var isChecked = checkedDishes[d.name] ? ' checked' : '';
+    return '<div class="menu-card' + isChecked + '" onclick="toggleCheck(this, \'' + escAttr(d.name) + '\')" data-name="' + escAttr(d.name) + '">' +
+      '<span class="menu-icon ' + anim + '">' + icon + '</span>' +
+      '<span class="menu-name">' + esc(d.name) + '</span>' +
+      '<span class="check-mark">✓</span>' +
+      '</div>';
+  }).join('');
+
+  updateListButton();
+}
+
+function escAttr(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function toggleCheck(card, name) {
+  if (checkedDishes[name]) {
+    delete checkedDishes[name];
+    card.classList.remove('checked');
+  } else {
+    checkedDishes[name] = true;
+    card.classList.add('checked');
+  }
+  updateListButton();
+}
+
+function updateListButton() {
+  var btn = document.getElementById('btnGenerateList');
+  var count = Object.keys(checkedDishes).length;
+  btn.textContent = count > 0 ? '已选 ' + count + ' 道 · 查看做法' : '查看做法';
+  btn.disabled = count === 0;
+}
+
+function generateList() {
+  var area = document.getElementById('listResultArea');
+  var names = Object.keys(checkedDishes);
+  if (names.length === 0) return;
+
+  var picked = dishes.filter(function(d) { return names.indexOf(d.name) !== -1; });
+
+  area.innerHTML = '<div class="menu-grid-title" style="margin-top:8px;">📝 点菜清单</div>' +
+    picked.map(function(d, idx) {
+      return '<div class="result-dish" onclick="this.classList.toggle(\'open\')">' +
+        '<div class="result-dish-header">' +
+        '<span class="idx">' + (idx + 1) + '</span>' +
+        '<span>' + getIcon(d.name) + ' ' + esc(d.name) + '</span>' +
+        '<span class="arrow">▶</span>' +
+        '</div>' +
+        '<div class="result-dish-body"><p>' + esc(d.steps || '(暂无做法)') + '</p></div>' +
+        '</div>';
+    }).join('');
+
+  setTimeout(function() {
+    var first = area.querySelector('.result-dish');
+    if (first) first.classList.add('open');
+  }, 100);
+  area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function renderDishList() {
@@ -573,7 +828,7 @@ function randomPick(areaId) {
       return '<div class="result-dish" onclick="this.classList.toggle(\'open\')">' +
         '<div class="result-dish-header">' +
         '<span class="idx">' + (idx + 1) + '</span>' +
-        '<span>' + esc(d.name) + '</span>' +
+        '<span>' + getIcon(d.name) + ' ' + esc(d.name) + '</span>' +
         '<span class="arrow">▶</span>' +
         '</div>' +
         '<div class="result-dish-body"><p>' + esc(d.steps || '(暂无做法)') + '</p></div>' +
