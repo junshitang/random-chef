@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今天吃什么 🍳</title>
+<style>
+:root {
+  --bg: #fdf6ee;
+  --card: #fff;
+  --accent: #e07b39;
+  --accent2: #d4a574;
+  --text: #3d2c1e;
+  --text2: #6b5a4a;
+  --border: #e8ddd0;
+  --tag-bg: #fef0e4;
+  --danger: #c0392b;
+  --shadow: 0 2px 12px rgba(60,30,10,0.06);
+  --radius: 14px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #e07b39 0%, #c96a2e 100%);
+  color: #fff;
+  padding: 20px 24px;
+  text-align: center;
+  box-shadow: 0 2px 16px rgba(224,123,57,0.25);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: 0.02em; }
+.header p { font-size: 0.85rem; opacity: 0.85; margin-top: 2px; }
+
+/* Container */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 680px) {
+  .container { grid-template-columns: 1fr; }
+}
+
+/* Cards */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ====== Left: Menu Management ====== */
+/* Add form */
+.add-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.add-form input, .add-form textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background: #fefcf9;
+  color: var(--text);
+}
+.add-form input:focus, .add-form textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.add-form textarea { resize: vertical; min-height: 60px; }
+.add-form button {
+  padding: 10px 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.add-form button:hover { background: #c96a2e; }
+
+/* Search */
+.search-box {
+  margin-bottom: 12px;
+}
+.search-box input {
+  width: 100%;
+  padding: 8px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  background: #fefcf9;
+  font-family: inherit;
+}
+.search-box input:focus { outline: none; border-color: var(--accent); }
+
+/* Dish list */
+.dish-list {
+  max-height: 420px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dish-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dish-item:hover { border-color: var(--accent2); background: #fefcf9; }
+.dish-item .name { font-weight: 600; font-size: 0.95rem; }
+.dish-item .actions { display: flex; gap: 4px; flex-shrink: 0; }
+.dish-item .actions button {
+  width: 30px; height: 30px;
+  border: none; border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.btn-edit { background: #fef0e4; color: var(--accent); }
+.btn-edit:hover { background: #fde0cc; }
+.btn-del { background: #fde8e8; color: var(--danger); }
+.btn-del:hover { background: #fad1d1; }
+
+.empty-hint {
+  text-align: center;
+  color: var(--text2);
+  padding: 40px 20px;
+  font-size: 0.9rem;
+}
+
+/* Edit modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+.modal h3 { margin-bottom: 14px; font-size: 1.05rem; }
+.modal input, .modal textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  margin-bottom: 10px;
+  background: #fefcf9;
+}
+.modal textarea { resize: vertical; min-height: 80px; }
+.modal input:focus, .modal textarea:focus { outline: none; border-color: var(--accent); }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-btns button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.modal-cancel { background: #f0f0f0; color: #555; }
+.modal-save { background: var(--accent); color: #fff; }
+
+/* ====== Right: Random Picker ====== */
+.picker-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.picker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.picker-row label { font-weight: 600; font-size: 1rem; white-space: nowrap; }
+.picker-row input[type="number"] {
+  width: 70px;
+  padding: 10px;
+  text-align: center;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: inherit;
+}
+.picker-row input[type="number"]:focus { outline: none; border-color: var(--accent); }
+
+.btn-random {
+  padding: 14px 40px;
+  background: linear-gradient(135deg, #e07b39 0%, #c96a2e 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(224,123,57,0.3);
+  letter-spacing: 0.04em;
+}
+.btn-random:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(224,123,57,0.4); }
+.btn-random:active { transform: translateY(0); }
+.btn-random:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.result-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+.result-dish {
+  background: #fefcf9;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.result-dish:hover { border-color: var(--accent2); }
+.result-dish-header {
+  padding: 14px 18px;
+  background: var(--tag-bg);
+  font-weight: 700;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.result-dish-header .arrow { transition: transform 0.2s; font-size: 0.75rem; }
+.result-dish.open .result-dish-header .arrow { transform: rotate(90deg); }
+.result-dish-body {
+  padding: 0 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+.result-dish.open .result-dish-body {
+  max-height: 300px;
+  padding: 14px 18px;
+}
+.result-dish-body p {
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+  color: var(--text2);
+  line-height: 1.8;
+}
+
+/* stats */
+.stats-row {
+  display: flex;
+  gap: 20px;
+  font-size: 0.85rem;
+  color: var(--text2);
+  justify-content: center;
+}
+.stats-row span { font-weight: 600; color: var(--accent); }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30px;
+  color: var(--text2);
+  font-size: 0.8rem;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🍳 今天吃什么</h1>
+  <p>配好菜单，随机点菜，告别选择困难</p>
+</div>
+
+<div class="container">
+  <!-- Left: Menu Management -->
+  <div class="card" id="menu-panel">
+    <div class="card-title">📋 我的菜单</div>
+
+    <div class="add-form" id="addForm">
+      <input type="text" id="dishName" placeholder="菜名，如：番茄炒蛋" maxlength="30">
+      <textarea id="dishSteps" placeholder="做法步骤..." rows="2"></textarea>
+      <button onclick="addDish()">➕ 添加</button>
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="🔍 搜索菜名..." oninput="renderDishList()">
+    </div>
+
+    <div class="dish-list" id="dishList"></div>
+    <div class="stats-row" style="margin-top:12px">
+      共 <span id="dishCount">0</span> 道菜
+    </div>
+  </div>
+
+  <!-- Right: Random Picker -->
+  <div class="card">
+    <div class="card-title">🎲 随机点菜</div>
+    <div class="picker-section">
+      <div class="picker-row">
+        <label for="pickCount">来几道？</label>
+        <input type="number" id="pickCount" value="3" min="1" max="20">
+        <span style="color:var(--text2);font-size:0.85rem">道</span>
+      </div>
+      <button class="btn-random" onclick="randomPick()">🎰 随机点菜</button>
+      <div class="result-area" id="resultArea"></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">数据保存在浏览器本地 · 换设备需重新配置</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>✏️ 编辑</h3>
+    <input type="text" id="editName" placeholder="菜名" maxlength="30">
+    <textarea id="editSteps" placeholder="做法步骤..." rows="3"></textarea>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">取消</button>
+      <button class="modal-save" onclick="saveEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'random_chef_dishes';
+let dishes = [];
+let editingIndex = -1;
+
+// --- Data ---
+function loadDishes() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    dishes = raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    dishes = [];
+  }
+}
+
+function saveDishes() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
+}
+
+// --- Menu ---
+function addDish() {
+  const nameEl = document.getElementById('dishName');
+  const stepsEl = document.getElementById('dishSteps');
+  const name = nameEl.value.trim();
+  const steps = stepsEl.value.trim();
+  if (!name) { nameEl.focus(); return; }
+  dishes.push({ name, steps });
+  saveDishes();
+  nameEl.value = '';
+  stepsEl.value = '';
+  nameEl.focus();
+  renderDishList();
+}
+
+function deleteDish(index) {
+  if (!confirm('确定删除「' + dishes[index].name + '」？')) return;
+  dishes.splice(index, 1);
+  saveDishes();
+  renderDishList();
+}
+
+function openEdit(index) {
+  editingIndex = index;
+  document.getElementById('editName').value = dishes[index].name;
+  document.getElementById('editSteps').value = dishes[index].steps;
+  document.getElementById('editModal').classList.add('show');
+  document.getElementById('editName').focus();
+}
+
+function closeModal() {
+  document.getElementById('editModal').classList.remove('show');
+  editingIndex = -1;
+}
+
+function saveEdit() {
+  const name = document.getElementById('editName').value.trim();
+  const steps = document.getElementById('editSteps').value.trim();
+  if (!name) return;
+  dishes[editingIndex] = { name, steps };
+  saveDishes();
+  closeModal();
+  renderDishList();
+}
+
+function renderDishList() {
+  const container = document.getElementById('dishList');
+  const search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  let filtered = dishes;
+  if (search) {
+    filtered = dishes.filter(function(d) { return d.name.toLowerCase().includes(search); });
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-hint">' + (dishes.length === 0 ? '还没有菜，在上方添加吧 👆' : '没有匹配的菜') + '</div>';
+  } else {
+    container.innerHTML = filtered.map(function(d, i) {
+      var realIndex = dishes.indexOf(d);
+      return '<div class="dish-item" onclick="openEdit(' + realIndex + ')">' +
+        '<span class="name">' + esc(d.name) + '</span>' +
+        '<span class="actions" onclick="event.stopPropagation()">' +
+        '<button class="btn-edit" onclick="openEdit(' + realIndex + ')" title="编辑">✎</button>' +
+        '<button class="btn-del" onclick="deleteDish(' + realIndex + ')" title="删除">✕</button>' +
+        '</span></div>';
+    }).join('');
+  }
+  document.getElementById('dishCount').textContent = dishes.length;
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// --- Random Pick ---
+function randomPick() {
+  var count = parseInt(document.getElementById('pickCount').value) || 3;
+  count = Math.max(1, Math.min(count, dishes.length));
+  document.getElementById('pickCount').value = count;
+
+  var area = document.getElementById('resultArea');
+  if (dishes.length === 0) {
+    area.innerHTML = '<div class="empty-hint">请先在左边菜单里添加几道菜 🥢</div>';
+    return;
+  }
+
+  // Fisher-Yates shuffle, pick first N
+  var pool = dishes.slice();
+  for (var i = pool.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+  }
+  var picked = pool.slice(0, count);
+
+  area.innerHTML = picked.map(function(d, idx) {
+    return '<div class="result-dish" onclick="this.classList.toggle(\'open\')">' +
+      '<div class="result-dish-header">' +
+      '<span class="arrow">▶</span> ' +
+      '<span>' + (idx + 1) + '. ' + esc(d.name) + '</span>' +
+      '</div>' +
+      '<div class="result-dish-body"><p>' + esc(d.steps || '(暂无做法)') + '</p></div>' +
+      '</div>';
+  }).join('');
+
+  // auto-open the first dish
+  setTimeout(function() {
+    var first = area.querySelector('.result-dish');
+    if (first) first.classList.add('open');
+  }, 100);
+
+  // scroll to result on mobile
+  area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// --- Init ---
+loadDishes();
+renderDishList();
+
+// keyboard: Enter to add
+document.getElementById('dishName').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') addDish();
+});
+document.getElementById('pickCount').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') randomPick();
+});
+// click outside modal to close
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+// ESC to close modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>
