@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>今天吃什么 🍳</title>
 <style>
 :root {
@@ -25,287 +25,258 @@ body {
   color: var(--text);
   min-height: 100vh;
   line-height: 1.6;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Header */
 .header {
   background: linear-gradient(135deg, #e07b39 0%, #c96a2e 100%);
   color: #fff;
-  padding: 20px 24px;
+  padding: 18px 24px;
   text-align: center;
   box-shadow: 0 2px 16px rgba(224,123,57,0.25);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  position: relative;
 }
-.header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: 0.02em; }
-.header p { font-size: 0.85rem; opacity: 0.85; margin-top: 2px; }
+.header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.04em; }
+.header p { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+.header .toggle-edit {
+  position: absolute;
+  right: 16px; top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+}
 
 /* Container */
 .container {
   max-width: 960px;
   margin: 0 auto;
   padding: 20px;
+}
+.container.edit-mode {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
-@media (max-width: 680px) {
-  .container { grid-template-columns: 1fr; }
+@media (max-width: 720px) {
+  .container.edit-mode { grid-template-columns: 1fr; }
 }
 
-/* Cards */
+/* ====== Guest Picker (centered) ====== */
+.picker-wrap {
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding-top: 16px;
+}
+.picker-hero { text-align: center; }
+.picker-hero .emoji { font-size: 2.8rem; display: block; margin-bottom: 6px; }
+.picker-hero h2 { font-size: 1.2rem; font-weight: 700; }
+
+.picker-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card); padding: 10px 20px;
+  border-radius: 50px; box-shadow: var(--shadow);
+}
+.picker-row label { font-weight: 600; font-size: 1rem; white-space: nowrap; }
+.picker-row input[type="number"] {
+  width: 55px; padding: 8px 4px; text-align: center;
+  border: none; border-bottom: 2px solid var(--accent);
+  font-size: 1.2rem; font-weight: 700; color: var(--accent);
+  font-family: inherit; background: transparent;
+  -moz-appearance: textfield;
+}
+.picker-row input[type="number"]::-webkit-inner-spin-button,
+.picker-row input[type="number"]::-webkit-outer-spin-button { opacity: 1; height: 30px; }
+.picker-row input[type="number"]:focus { outline: none; }
+.picker-row .unit { color: var(--text2); font-size: 0.9rem; }
+
+.btn-random {
+  width: 100%; max-width: 300px; padding: 16px 40px;
+  background: linear-gradient(135deg, #e07b39 0%, #c96a2e 100%);
+  color: #fff; border: none; border-radius: 50px;
+  font-size: 1.15rem; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; box-shadow: 0 4px 16px rgba(224,123,57,0.3);
+  letter-spacing: 0.06em; -webkit-tap-highlight-color: transparent;
+}
+.btn-random:active { transform: scale(0.97); }
+.btn-random:disabled { opacity: 0.4; pointer-events: none; }
+
+.dish-count { font-size: 0.85rem; color: var(--text2); }
+
+.result-area { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.result-dish {
+  background: var(--card); border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--shadow);
+}
+.result-dish-header {
+  padding: 16px 20px; font-weight: 700; font-size: 1.05rem;
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; user-select: none;
+}
+.result-dish-header .idx {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.result-dish-header .arrow {
+  transition: transform 0.2s; font-size: 0.7rem;
+  color: var(--text2); margin-left: auto;
+}
+.result-dish.open .result-dish-header .arrow { transform: rotate(90deg); }
+.result-dish-body {
+  padding: 0 20px; max-height: 0; overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.35s ease;
+}
+.result-dish.open .result-dish-body {
+  max-height: 400px; padding: 0 20px 18px; overflow-y: auto;
+}
+.result-dish-body p {
+  white-space: pre-wrap; font-size: 0.9rem;
+  color: var(--text2); line-height: 1.8;
+}
+
+.btn-reshuffle {
+  background: none; border: 1.5px solid var(--accent);
+  color: var(--accent); padding: 10px 24px; border-radius: 50px;
+  font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  margin-top: 4px; -webkit-tap-highlight-color: transparent;
+}
+.btn-reshuffle:active { background: var(--tag-bg); }
+
+.empty-hint {
+  text-align: center; color: var(--text2);
+  padding: 40px 20px; font-size: 0.95rem;
+}
+
+/* ====== Editor Panel ====== */
+.editor-panel { display: none; }
+.edit-mode .editor-panel { display: block; }
+
 .card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: var(--shadow);
+  background: var(--card); border-radius: var(--radius);
+  padding: 24px; box-shadow: var(--shadow);
 }
 .card-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-size: 1.05rem; font-weight: 700;
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
 }
 
-/* ====== Left: Menu Management ====== */
-/* Add form */
 .add-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .add-form input, .add-form textarea {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-family: inherit;
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 0.9rem; font-family: inherit;
+  background: #fefcf9; color: var(--text);
   transition: border-color 0.2s;
-  background: #fefcf9;
-  color: var(--text);
 }
-.add-form input:focus, .add-form textarea:focus {
-  outline: none;
-  border-color: var(--accent);
+.add-form input:focus, .add-form textarea:focus { outline: none; border-color: var(--accent); }
+.add-form textarea { resize: vertical; min-height: 55px; }
+.btn-add {
+  padding: 10px 20px; background: var(--accent); color: #fff;
+  border: none; border-radius: 10px; font-size: 0.9rem;
+  font-weight: 600; cursor: pointer;
 }
-.add-form textarea { resize: vertical; min-height: 60px; }
-.add-form button {
-  padding: 10px 20px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.add-form button:hover { background: #c96a2e; }
+.btn-add:hover { background: #c96a2e; }
 
-/* Search */
-.search-box {
-  margin-bottom: 12px;
-}
+.search-box { margin-bottom: 12px; }
 .search-box input {
-  width: 100%;
-  padding: 8px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  font-size: 0.85rem;
-  background: #fefcf9;
-  font-family: inherit;
+  width: 100%; padding: 8px 14px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 0.85rem; background: #fefcf9; font-family: inherit;
 }
 .search-box input:focus { outline: none; border-color: var(--accent); }
 
-/* Dish list */
 .dish-list {
-  max-height: 420px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  max-height: 350px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 8px;
 }
 .dish-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-radius: 10px;
+  border: 1px solid var(--border); cursor: pointer;
   transition: all 0.15s;
 }
 .dish-item:hover { border-color: var(--accent2); background: #fefcf9; }
 .dish-item .name { font-weight: 600; font-size: 0.95rem; }
 .dish-item .actions { display: flex; gap: 4px; flex-shrink: 0; }
 .dish-item .actions button {
-  width: 30px; height: 30px;
-  border: none; border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.85rem;
+  width: 30px; height: 30px; border: none; border-radius: 8px;
+  cursor: pointer; font-size: 0.85rem;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
 }
 .btn-edit { background: #fef0e4; color: var(--accent); }
 .btn-edit:hover { background: #fde0cc; }
 .btn-del { background: #fde8e8; color: var(--danger); }
 .btn-del:hover { background: #fad1d1; }
 
-.empty-hint {
-  text-align: center;
-  color: var(--text2);
-  padding: 40px 20px;
-  font-size: 0.9rem;
+.save-status {
+  font-size: 0.8rem; color: var(--text2);
+  text-align: center; margin-top: 8px;
+  transition: color 0.3s;
 }
+.save-status.saved { color: #2e7d32; }
+.save-status.error { color: var(--danger); }
 
-/* Edit modal */
+/* Picker panel in edit mode */
+.picker-panel .btn-random { max-width: 100%; }
+
+/* Modal */
 .modal-overlay {
   display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.4);
-  z-index: 100;
-  justify-content: center;
-  align-items: center;
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4); z-index: 100;
+  justify-content: center; align-items: center;
 }
 .modal-overlay.show { display: flex; }
 .modal {
-  background: #fff;
-  border-radius: var(--radius);
-  padding: 24px;
-  width: 90%;
-  max-width: 440px;
+  background: #fff; border-radius: var(--radius);
+  padding: 24px; width: 90%; max-width: 440px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
 }
 .modal h3 { margin-bottom: 14px; font-size: 1.05rem; }
 .modal input, .modal textarea {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-family: inherit;
-  margin-bottom: 10px;
-  background: #fefcf9;
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 0.9rem; font-family: inherit;
+  margin-bottom: 10px; background: #fefcf9;
 }
 .modal textarea { resize: vertical; min-height: 80px; }
 .modal input:focus, .modal textarea:focus { outline: none; border-color: var(--accent); }
 .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
 .modal-btns button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
+  padding: 10px 20px; border: none; border-radius: 10px;
+  font-size: 0.9rem; font-weight: 600; cursor: pointer;
 }
-.modal-cancel { background: #f0f0f0; color: #555; }
-.modal-save { background: var(--accent); color: #fff; }
+.btn-cancel { background: #f0f0f0; color: #555; }
+.btn-save { background: var(--accent); color: #fff; }
 
-/* ====== Right: Random Picker ====== */
-.picker-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
+/* Loading */
+.loading {
+  text-align: center; padding: 60px 20px; color: var(--text2);
 }
-.picker-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.spinner {
+  display: inline-block; width: 32px; height: 32px;
+  border: 3px solid var(--border); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
 }
-.picker-row label { font-weight: 600; font-size: 1rem; white-space: nowrap; }
-.picker-row input[type="number"] {
-  width: 70px;
-  padding: 10px;
-  text-align: center;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--accent);
-  font-family: inherit;
-}
-.picker-row input[type="number"]:focus { outline: none; border-color: var(--accent); }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.btn-random {
-  padding: 14px 40px;
-  background: linear-gradient(135deg, #e07b39 0%, #c96a2e 100%);
-  color: #fff;
-  border: none;
-  border-radius: 50px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 16px rgba(224,123,57,0.3);
-  letter-spacing: 0.04em;
-}
-.btn-random:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(224,123,57,0.4); }
-.btn-random:active { transform: translateY(0); }
-.btn-random:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-.result-area {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 4px;
-}
-.result-dish {
-  background: #fefcf9;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  transition: all 0.2s;
-}
-.result-dish:hover { border-color: var(--accent2); }
-.result-dish-header {
-  padding: 14px 18px;
-  background: var(--tag-bg);
-  font-weight: 700;
-  font-size: 1.05rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
-}
-.result-dish-header .arrow { transition: transform 0.2s; font-size: 0.75rem; }
-.result-dish.open .result-dish-header .arrow { transform: rotate(90deg); }
-.result-dish-body {
-  padding: 0 18px;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s ease;
-}
-.result-dish.open .result-dish-body {
-  max-height: 300px;
-  padding: 14px 18px;
-}
-.result-dish-body p {
-  white-space: pre-wrap;
-  font-size: 0.9rem;
-  color: var(--text2);
-  line-height: 1.8;
-}
-
-/* stats */
-.stats-row {
-  display: flex;
-  gap: 20px;
-  font-size: 0.85rem;
-  color: var(--text2);
-  justify-content: center;
-}
-.stats-row span { font-weight: 600; color: var(--accent); }
-
-/* Footer */
 .footer {
-  text-align: center;
-  padding: 30px;
-  color: var(--text2);
-  font-size: 0.8rem;
+  text-align: center; padding: 24px;
+  color: var(--text2); font-size: 0.78rem;
 }
 </style>
 </head>
@@ -313,99 +284,244 @@ body {
 
 <div class="header">
   <h1>🍳 今天吃什么</h1>
-  <p>配好菜单，随机点菜，告别选择困难</p>
+  <p id="headerSub">随机点菜，告别选择困难</p>
+  <button class="toggle-edit" id="toggleEdit" onclick="toggleEditMode()">✎ 编辑</button>
 </div>
 
-<div class="container">
-  <!-- Left: Menu Management -->
-  <div class="card" id="menu-panel">
-    <div class="card-title">📋 我的菜单</div>
-
-    <div class="add-form" id="addForm">
-      <input type="text" id="dishName" placeholder="菜名，如：番茄炒蛋" maxlength="30">
-      <textarea id="dishSteps" placeholder="做法步骤..." rows="2"></textarea>
-      <button onclick="addDish()">➕ 添加</button>
-    </div>
-
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="🔍 搜索菜名..." oninput="renderDishList()">
-    </div>
-
-    <div class="dish-list" id="dishList"></div>
-    <div class="stats-row" style="margin-top:12px">
-      共 <span id="dishCount">0</span> 道菜
-    </div>
+<div class="container" id="container">
+  <!-- Loading -->
+  <div class="loading" id="loading" style="display:none">
+    <div class="spinner"></div>
+    <p style="margin-top:12px;">加载菜单中...</p>
   </div>
 
-  <!-- Right: Random Picker -->
-  <div class="card">
-    <div class="card-title">🎲 随机点菜</div>
-    <div class="picker-section">
-      <div class="picker-row">
-        <label for="pickCount">来几道？</label>
-        <input type="number" id="pickCount" value="3" min="1" max="20">
-        <span style="color:var(--text2);font-size:0.85rem">道</span>
+  <!-- Guest Picker -->
+  <div id="pickerView" class="picker-wrap">
+    <div class="picker-hero">
+      <span class="emoji">🍽️</span>
+      <h2>不知道吃什么？</h2>
+    </div>
+    <div class="picker-row">
+      <label for="pickCount">来</label>
+      <input type="number" id="pickCount" value="3" min="1" max="20">
+      <span class="unit">道</span>
+    </div>
+    <button class="btn-random" onclick="randomPick('resultArea')">🎰 随机点菜</button>
+    <div class="dish-count" id="dishCount">共 0 道菜可选</div>
+    <div class="result-area" id="resultArea"></div>
+  </div>
+
+  <!-- Editor Panel (hidden by default) -->
+  <div class="editor-panel" id="editorPanel">
+    <div class="card">
+      <div class="card-title">📋 管理菜单</div>
+      <div class="add-form">
+        <input type="text" id="dishName" placeholder="菜名，如：番茄炒蛋" maxlength="30">
+        <textarea id="dishSteps" placeholder="做法步骤..." rows="2"></textarea>
+        <button class="btn-add" onclick="addDish()">➕ 添加</button>
       </div>
-      <button class="btn-random" onclick="randomPick()">🎰 随机点菜</button>
-      <div class="result-area" id="resultArea"></div>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 搜索菜名..." oninput="renderDishList()">
+      </div>
+      <div class="dish-list" id="dishList"></div>
+      <div class="save-status" id="saveStatus">共 <strong id="editCount">0</strong> 道菜</div>
+    </div>
+  </div>
+
+  <!-- Picker in edit mode -->
+  <div class="editor-panel" id="editPickerPanel">
+    <div class="card picker-panel">
+      <div class="card-title">🎲 预览</div>
+      <div class="picker-row" style="box-shadow:none;margin-bottom:10px;">
+        <label>来</label>
+        <input type="number" id="editPickCount" value="3" min="1" max="20">
+        <span class="unit">道</span>
+      </div>
+      <button class="btn-random" onclick="randomPick('editResultArea')">🎰 随机点菜</button>
+      <div class="result-area" id="editResultArea" style="margin-top:14px;"></div>
     </div>
   </div>
 </div>
 
-<div class="footer">数据保存在浏览器本地 · 换设备需重新配置</div>
+<div class="footer">同一份菜单 · 大家共享 🥢</div>
 
-<!-- Edit Modal -->
+<!-- Edit Dish Modal -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <h3>✏️ 编辑</h3>
     <input type="text" id="editName" placeholder="菜名" maxlength="30">
     <textarea id="editSteps" placeholder="做法步骤..." rows="3"></textarea>
     <div class="modal-btns">
-      <button class="modal-cancel" onclick="closeModal()">取消</button>
-      <button class="modal-save" onclick="saveEdit()">保存</button>
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-save" onclick="saveEdit()">保存</button>
     </div>
   </div>
 </div>
 
 <script>
-const STORAGE_KEY = 'random_chef_dishes';
-let dishes = [];
-let editingIndex = -1;
+// === Config ===
+var GIST_ID = 'ff1cd5caa1c3b868dae49c0a006df255';
+var GIST_RAW = 'https://gist.githubusercontent.com/junshitang/' + GIST_ID + '/raw/dishes.json';
+var GIST_API = 'https://api.github.com/gists/' + GIST_ID;
 
-// --- Data ---
+var dishes = [];
+var editMode = false;
+var editingIndex = -1;
+var saveTimer = null;
+
+// === Token management (stored in sessionStorage, never in source) ===
+function getToken() {
+  return sessionStorage.getItem('gh_gist_token') || '';
+}
+function setToken(t) {
+  sessionStorage.setItem('gh_gist_token', t);
+}
+function hasToken() {
+  return !!getToken();
+}
+function promptToken() {
+  var t = prompt('请输入 GitHub Token（仅 gist 权限）：\n\n首次使用需要创建 token：\nhttps://github.com/settings/tokens/new?scopes=gist&description=random-chef\n\nToken 只保存在浏览器中，不会上传。');
+  if (t && t.trim()) {
+    setToken(t.trim());
+    return true;
+  }
+  return false;
+}
+
+// === Load from Gist ===
 function loadDishes() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    dishes = raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    dishes = [];
+  document.getElementById('loading').style.display = 'block';
+  fetch(GIST_RAW + '?t=' + Date.now())
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      dishes = Array.isArray(data) ? data : [];
+      renderAll();
+      document.getElementById('loading').style.display = 'none';
+    })
+    .catch(function() {
+      // fallback: try localStorage
+      try {
+        var raw = localStorage.getItem('random_chef_dishes');
+        dishes = raw ? JSON.parse(raw) : [];
+      } catch(e) { dishes = []; }
+      renderAll();
+      document.getElementById('loading').style.display = 'none';
+      setStatus('⚠️ 离线模式，数据未同步', 'error');
+    });
+}
+
+// === Save to Gist ===
+function saveDishes() {
+  // also save to localStorage as backup
+  localStorage.setItem('random_chef_dishes', JSON.stringify(dishes));
+  // debounced save to gist
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function() {
+    setStatus('保存中...', '');
+    fetch(GIST_API, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'token ' + getToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        files: { 'dishes.json': { content: JSON.stringify(dishes, null, 2) } }
+      })
+    }).then(function(r) {
+      if (r.ok) { setStatus('已同步 ✓', 'saved'); }
+      else { setStatus('同步失败，请重试', 'error'); }
+    }).catch(function() {
+      setStatus('⚠️ 网络错误，数据存在本地', 'error');
+    });
+  }, 600);
+}
+
+function setStatus(msg, cls) {
+  var el = document.getElementById('saveStatus');
+  el.textContent = msg;
+  el.className = 'save-status ' + cls;
+}
+
+// === Render ===
+function renderAll() {
+  renderDishList();
+  document.getElementById('dishCount').textContent = '共 ' + dishes.length + ' 道菜可选';
+  document.getElementById('editCount').textContent = dishes.length;
+  setStatus('共 ' + dishes.length + ' 道菜', '');
+}
+
+function renderDishList() {
+  var container = document.getElementById('dishList');
+  var search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  var filtered = dishes;
+  if (search) {
+    filtered = dishes.filter(function(d) { return d.name.toLowerCase().includes(search); });
+  }
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-hint">' +
+      (dishes.length === 0 ? '还没有菜，在上面添加第一道吧' : '没有匹配的菜') +
+      '</div>';
+  } else {
+    container.innerHTML = filtered.map(function(d) {
+      var ri = dishes.indexOf(d);
+      return '<div class="dish-item" onclick="openEdit(' + ri + ')">' +
+        '<span class="name">' + esc(d.name) + '</span>' +
+        '<span class="actions" onclick="event.stopPropagation()">' +
+        '<button class="btn-edit" onclick="openEdit(' + ri + ')">✎</button>' +
+        '<button class="btn-del" onclick="deleteDish(' + ri + ')">✕</button>' +
+        '</span></div>';
+    }).join('');
   }
 }
 
-function saveDishes() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
+// === Edit Mode Toggle ===
+function toggleEditMode() {
+  editMode = !editMode;
+  var container = document.getElementById('container');
+  var btn = document.getElementById('toggleEdit');
+  var headerSub = document.getElementById('headerSub');
+
+  if (editMode) {
+    if (!hasToken()) {
+      if (!promptToken()) {
+        editMode = false;
+        return;
+      }
+    }
+    container.classList.add('edit-mode');
+    btn.textContent = '✓ 完成';
+    btn.style.background = 'rgba(255,255,255,0.35)';
+    headerSub.textContent = '编辑菜单 · 自动同步';
+  } else {
+    container.classList.remove('edit-mode');
+    btn.textContent = '✎ 编辑';
+    btn.style.background = 'rgba(255,255,255,0.2)';
+    headerSub.textContent = '随机点菜，告别选择困难';
+    // reload from gist to get latest
+    loadDishes();
+  }
 }
 
-// --- Menu ---
+// === Menu Operations ===
 function addDish() {
-  const nameEl = document.getElementById('dishName');
-  const stepsEl = document.getElementById('dishSteps');
-  const name = nameEl.value.trim();
-  const steps = stepsEl.value.trim();
+  var nameEl = document.getElementById('dishName');
+  var stepsEl = document.getElementById('dishSteps');
+  var name = nameEl.value.trim();
+  var steps = stepsEl.value.trim();
   if (!name) { nameEl.focus(); return; }
-  dishes.push({ name, steps });
+  dishes.push({ name: name, steps: steps });
   saveDishes();
   nameEl.value = '';
   stepsEl.value = '';
   nameEl.focus();
-  renderDishList();
+  renderAll();
 }
 
 function deleteDish(index) {
   if (!confirm('确定删除「' + dishes[index].name + '」？')) return;
   dishes.splice(index, 1);
   saveDishes();
-  renderDishList();
+  renderAll();
 }
 
 function openEdit(index) {
@@ -422,99 +538,70 @@ function closeModal() {
 }
 
 function saveEdit() {
-  const name = document.getElementById('editName').value.trim();
-  const steps = document.getElementById('editSteps').value.trim();
+  var name = document.getElementById('editName').value.trim();
+  var steps = document.getElementById('editSteps').value.trim();
   if (!name) return;
-  dishes[editingIndex] = { name, steps };
+  dishes[editingIndex] = { name: name, steps: steps };
   saveDishes();
   closeModal();
-  renderDishList();
-}
-
-function renderDishList() {
-  const container = document.getElementById('dishList');
-  const search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
-  let filtered = dishes;
-  if (search) {
-    filtered = dishes.filter(function(d) { return d.name.toLowerCase().includes(search); });
-  }
-
-  if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty-hint">' + (dishes.length === 0 ? '还没有菜，在上方添加吧 👆' : '没有匹配的菜') + '</div>';
-  } else {
-    container.innerHTML = filtered.map(function(d, i) {
-      var realIndex = dishes.indexOf(d);
-      return '<div class="dish-item" onclick="openEdit(' + realIndex + ')">' +
-        '<span class="name">' + esc(d.name) + '</span>' +
-        '<span class="actions" onclick="event.stopPropagation()">' +
-        '<button class="btn-edit" onclick="openEdit(' + realIndex + ')" title="编辑">✎</button>' +
-        '<button class="btn-del" onclick="deleteDish(' + realIndex + ')" title="删除">✕</button>' +
-        '</span></div>';
-    }).join('');
-  }
-  document.getElementById('dishCount').textContent = dishes.length;
+  renderAll();
 }
 
 function esc(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// --- Random Pick ---
-function randomPick() {
-  var count = parseInt(document.getElementById('pickCount').value) || 3;
-  count = Math.max(1, Math.min(count, dishes.length));
-  document.getElementById('pickCount').value = count;
-
-  var area = document.getElementById('resultArea');
-  if (dishes.length === 0) {
-    area.innerHTML = '<div class="empty-hint">请先在左边菜单里添加几道菜 🥢</div>';
+// === Random Pick ===
+function randomPick(areaId) {
+  var area = document.getElementById(areaId);
+  if (!dishes.length) {
+    area.innerHTML = '<div class="empty-hint">菜单还是空的 🧑‍🍳<br>点右上角「编辑」添加菜品</div>';
     return;
   }
+  var count = parseInt(document.getElementById(areaId === 'resultArea' ? 'pickCount' : 'editPickCount').value) || 3;
+  var n = Math.max(1, Math.min(count, dishes.length));
 
-  // Fisher-Yates shuffle, pick first N
   var pool = dishes.slice();
   for (var i = pool.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
     var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
   }
-  var picked = pool.slice(0, count);
+  var picked = pool.slice(0, n);
 
-  area.innerHTML = picked.map(function(d, idx) {
-    return '<div class="result-dish" onclick="this.classList.toggle(\'open\')">' +
-      '<div class="result-dish-header">' +
-      '<span class="arrow">▶</span> ' +
-      '<span>' + (idx + 1) + '. ' + esc(d.name) + '</span>' +
-      '</div>' +
-      '<div class="result-dish-body"><p>' + esc(d.steps || '(暂无做法)') + '</p></div>' +
-      '</div>';
-  }).join('');
+  area.innerHTML = '<button class="btn-reshuffle" onclick="randomPick(\'' + areaId + '\')">🔄 换一批</button>' +
+    picked.map(function(d, idx) {
+      return '<div class="result-dish" onclick="this.classList.toggle(\'open\')">' +
+        '<div class="result-dish-header">' +
+        '<span class="idx">' + (idx + 1) + '</span>' +
+        '<span>' + esc(d.name) + '</span>' +
+        '<span class="arrow">▶</span>' +
+        '</div>' +
+        '<div class="result-dish-body"><p>' + esc(d.steps || '(暂无做法)') + '</p></div>' +
+        '</div>';
+    }).join('');
 
-  // auto-open the first dish
   setTimeout(function() {
     var first = area.querySelector('.result-dish');
     if (first) first.classList.add('open');
   }, 100);
-
-  // scroll to result on mobile
   area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// --- Init ---
+// === Init ===
 loadDishes();
-renderDishList();
 
-// keyboard: Enter to add
 document.getElementById('dishName').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') addDish();
 });
 document.getElementById('pickCount').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') randomPick();
+  if (e.key === 'Enter') randomPick('resultArea');
 });
-// click outside modal to close
+document.getElementById('editPickCount').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') randomPick('editResultArea');
+});
 document.getElementById('editModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
-// ESC to close modal
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeModal();
 });
