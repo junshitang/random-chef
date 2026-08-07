@@ -55,23 +55,6 @@ body {
 .header p { font-size: 0.75rem; opacity: 0.8; font-weight: 400; }
 .header-text { text-align: center; }
 
-/* Hamburger */
-.hamburger {
-  display: none;
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-  z-index: 31;
-  padding: 6px;
-  line-height: 1;
-}
-
 /* === Top Tab Bar === */
 .tab-bar {
   display: flex;
@@ -510,35 +493,26 @@ body {
 <body>
 
 <div class="header">
-  <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="菜单">☰</button>
   <div class="header-text">
     <h1>🍳 今天吃什么</h1>
     <p>配好菜单，随机点菜，告别选择困难</p>
   </div>
 </div>
 
-<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+<!-- Top Tab Navigation -->
+<nav class="tab-bar" id="tabBar">
+  <div class="tab-item active" data-view="menu" onclick="switchView('menu')">
+    📋 菜单 <span class="badge" id="navDishCount">0</span>
+  </div>
+  <div class="tab-item" data-view="staple" onclick="switchView('staple')">
+    🍚 主食 <span class="badge" id="navStapleCount">0</span>
+  </div>
+  <div class="tab-item" data-view="picker" onclick="switchView('picker')">
+    🎲 点菜
+  </div>
+</nav>
 
-<div class="app-layout">
-  <!-- Sidebar Navigation -->
-  <aside class="sidebar" id="sidebar">
-    <div class="nav-item active" data-view="menu" onclick="switchView('menu')">
-      📋 我的菜单
-      <span class="badge" id="navDishCount">0</span>
-    </div>
-    <div class="nav-item" data-view="picker" onclick="switchView('picker')">
-      🎲 随机点菜
-    </div>
-    <div class="nav-divider"></div>
-    <div class="nav-section-title">分类</div>
-    <div class="nav-item" data-view="staple" onclick="switchView('staple')">
-      🍚 主食
-      <span class="badge" id="navStapleCount">0</span>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="main-content" id="mainContent">
+<main class="main-content" id="mainContent">
     <!-- View: Menu Management -->
     <div class="view active" id="viewMenu">
       <div class="card">
