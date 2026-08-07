@@ -605,12 +605,18 @@ function switchView(view) {
   for (var i = 0; i < items.length; i++) {
     items[i].classList.toggle('active', items[i].getAttribute('data-view') === view);
   }
-  var isMenuArea = (view === 'menu' || view === 'staple');
+  var isMenuArea = (view === 'menu' || view === 'staple' || view === 'adun');
   document.getElementById('viewMenu').classList.toggle('active', isMenuArea);
   document.getElementById('viewPicker').classList.toggle('active', view === 'picker');
   var cardTitle = document.querySelector('#viewMenu .card-title');
   if (cardTitle) {
-    cardTitle.innerHTML = view === 'staple' ? '🍚 主食 <button class=\"btn-add-toggle\" id=\"btnAddToggle\" onclick=\"toggleAddForm()\" title=\"添加菜品\">＋</button>' : '📋 我的菜单 <button class=\"btn-add-toggle\" id=\"btnAddToggle\" onclick=\"toggleAddForm()\" title=\"添加菜品\">＋</button>';
+    if (view === 'staple') {
+      cardTitle.innerHTML = '🍚 主食 <button class=\"btn-add-toggle\" id=\"btnAddToggle\" onclick=\"toggleAddForm()\" title=\"添加菜品\">＋</button>';
+    } else if (view === 'adun') {
+      cardTitle.innerHTML = '🧑‍🍳 阿墩菜单 <button class=\"btn-add-toggle\" id=\"btnAddToggle\" onclick=\"toggleAddForm()\" title=\"添加菜品\">＋</button>';
+    } else {
+      cardTitle.innerHTML = '📋 我的菜单 <button class=\"btn-add-toggle\" id=\"btnAddToggle\" onclick=\"toggleAddForm()\" title=\"添加菜品\">＋</button>';
+    }
   }
   if (view === 'picker') {
     document.getElementById('resultArea').innerHTML = '';
