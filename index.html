@@ -673,21 +673,24 @@ let currentView = 'menu';
 // --- View switching ---
 function switchView(view) {
   currentView = view;
-  // Update nav active states
   var items = document.querySelectorAll('.nav-item');
   for (var i = 0; i < items.length; i++) {
     items[i].classList.toggle('active', items[i].getAttribute('data-view') === view);
   }
-  // Toggle views
-  document.getElementById('viewMenu').classList.toggle('active', view === 'menu');
+  // Both menu and staple use the same view container
+  var isMenuArea = (view === 'menu' || view === 'staple');
+  document.getElementById('viewMenu').classList.toggle('active', isMenuArea);
   document.getElementById('viewPicker').classList.toggle('active', view === 'picker');
-  // Close mobile sidebar
+  // Update card title
+  var cardTitle = document.querySelector('#viewMenu .card-title');
+  if (cardTitle) {
+    cardTitle.innerHTML = view === 'staple' ? '🍚 主食' : '📋 我的菜单 <button class=\"btn-add-toggle\" id=\"btnAddToggle\" onclick=\"toggleAddForm()\" title=\"添加菜品\">＋</button>';
+  }
   closeSidebar();
-  // Re-render
-  if (view === 'menu') {
-    renderDishList();
-  } else if (view === 'picker') {
+  if (view === 'picker') {
     document.getElementById('resultArea').innerHTML = '';
+  } else {
+    renderDishList();
   }
 }
 
