@@ -457,6 +457,8 @@ function saveDishes() {
   if (!pushing) {
     pushing = true;
     pushToGitHub();
+  } else {
+    pendingPush = true;
   }
 }
 
@@ -486,9 +488,14 @@ async function pushToGitHub() {
       dishesSha = null;
     }
   } catch(e) {
-    dishesSha = null; // reset on any error
+    dishesSha = null;
   }
   pushing = false;
+  if (pendingPush) {
+    pendingPush = false;
+    pushing = true;
+    pushToGitHub();
+  }
 }
 
 function syncHash(s) { lastRemoteHash = hashStr(s); } // deprecated, kept for compat
