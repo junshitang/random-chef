@@ -645,6 +645,8 @@ function getToken() { return localStorage.getItem('rc_gh_token') || ''; }
 function setToken(t) { localStorage.setItem('rc_gh_token', t); }
 let dishes = [];
 let editingIndex = -1;
+let editingIcon = '🍽️';
+let dishesSha = null;
 let selectedIndices = [];
 
 // --- Selection ---
