@@ -316,5 +316,25 @@
     "steps": "",
     "icon": "🍄",
     "category": "阿墩"
+  },
+  {
+    "name": "青椒肉卷",
+    "steps": "",
+    "icon": "🫑"
+  },
+  {
+    "name": "土豆牛腩",
+    "steps": "",
+    "icon": "🥔"
+  },
+  {
+    "name": "红烧鲫鱼",
+    "steps": "",
+    "icon": "🐟"
+  },
+  {
+    "name": "苦瓜鸡蛋",
+    "steps": "",
+    "icon": "🥒"
   }
 ]
