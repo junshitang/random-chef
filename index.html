@@ -408,23 +408,28 @@ let dishesSha = null;
 let lastRemoteHash = '';
 let pushing = false;  // prevent poll from overwriting during push
 
-// --- Data: GitHub-synced ---
+// --- Data: GitHub-synced (local first, cloud sync in background) ---
 function loadDishes() {
+  // Show local data immediately
   var local = null;
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
     if (raw) local = JSON.parse(raw);
   } catch(e) {}
+  if (local && local.length > 0) {
+    dishes = local;
+    renderAll();
+  }
 
+  // Then sync with cloud
   fetch(GH_RAW + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function(r) { return r.json(); })
     .then(function(remote) {
       remote = Array.isArray(remote) ? remote : [];
       lastRemoteHash = hashStr(JSON.stringify(remote));
-      // Merge: remote wins unless it's empty and local has data
       if (remote.length === 0 && local && local.length > 0) {
         dishes = local;
-        pushToGitHub(); // push local to cloud
+        pushToGitHub();
       } else if (remote.length >= (local ? local.length : 0)) {
         dishes = remote;
       } else {
@@ -434,8 +439,10 @@ function loadDishes() {
       renderAll();
     })
     .catch(function() {
-      dishes = local || [];
-      renderAll();
+      if (!local || local.length === 0) {
+        dishes = [];
+        renderAll();
+      }
     });
 }
 
