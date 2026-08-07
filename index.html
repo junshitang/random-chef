@@ -593,8 +593,25 @@ function getToken() { return localStorage.getItem('rc_gh_token') || ''; }
 function setToken(t) { localStorage.setItem('rc_gh_token', t); }
 let dishes = [];
 let editingIndex = -1;
-let editingIcon = '🍽️';
-let dishesSha = null;
+let selectedIndices = [];
+
+// --- Selection ---
+function toggleSelect(index) {
+  var pos = selectedIndices.indexOf(index);
+  if (pos >= 0) {
+    selectedIndices.splice(pos, 1);
+  } else {
+    selectedIndices.push(index);
+  }
+  renderDishList();
+  renderSelectedList();
+}
+
+function clearSelection() {
+  selectedIndices = [];
+  renderDishList();
+  renderSelectedList();
+}
 let lastRemoteHash = '';
 let pushing = false;
 let pendingPush = false;
