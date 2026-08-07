@@ -352,6 +352,15 @@ body {
     <div class="dish-list" id="dishList"></div>
     <div class="stats-row" style="margin-top:12px">
       共 <span id="dishCount">0</span> 道菜
+      <span style="margin-left:8px;font-size:0.75rem;color:var(--text2)" id="syncStatus"></span>
+    </div>
+    <div id="tokenSetup" style="display:none;margin-top:8px;padding:10px;background:#fff8f0;border-radius:10px;border:1px dashed var(--accent2)">
+      <p style="font-size:0.8rem;color:var(--text2);margin-bottom:6px">配置 GitHub Token 即可开启跨设备同步：</p>
+      <div style="display:flex;gap:6px">
+        <input type="password" id="tokenInput" placeholder="粘贴 GitHub Token..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:0.8rem;font-family:inherit">
+        <button onclick="saveToken()" style="padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:0.8rem;cursor:pointer;white-space:nowrap">保存</button>
+      </div>
+      <p style="font-size:0.7rem;color:var(--text2);margin-top:4px">仅需 devicescope，<a href="https://github.com/settings/tokens" target="_blank" style="color:var(--accent)">创建 Token</a> — 勾选 repo 权限</p>
     </div>
   </div>
 
@@ -370,7 +379,7 @@ body {
   </div>
 </div>
 
-<div class="footer">数据保存在浏览器本地 · 换设备需重新配置</div>
+<div class="footer">数据云端同步 · 所有设备共享菜单</div>
 
 <!-- Edit Modal -->
 <div class="modal-overlay" id="editModal">
@@ -388,6 +397,122 @@ body {
 
 <script>
 const STORAGE_KEY = 'random_chef_dishes';
+const GH_API = 'https://api.github.com/repos/junshitang/random-chef/contents/dishes.json';
+const GH_RAW = 'https://junshitang.github.io/random-chef/dishes.json';
+function getToken() { return localStorage.getItem('rc_gh_token') || ''; }
+function setToken(t) { localStorage.setItem('rc_gh_token', t); }
+let dishes = [];
+let editingIndex = -1;
+let editingIcon = '🍽️';
+let dishesSha = null;   // GitHub file SHA for updates
+let lastSyncHash = '';  // detect remote changes
+
+// --- Data: GitHub-synced ---
+function loadDishes() {
+  var local = null;
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) local = JSON.parse(raw);
+  } catch(e) {}
+
+  // Try GitHub first (source of truth), fall back to local
+  fetch(GH_RAW + '?t=' + Date.now(), { cache: 'no-store' })
+    .then(function(r) { return r.json(); })
+    .then(function(remote) {
+      syncHash(JSON.stringify(remote));
+      if (!local || JSON.stringify(remote) !== JSON.stringify(local)) {
+        dishes = Array.isArray(remote) ? remote : [];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
+      } else {
+        dishes = local;
+      }
+      renderAll();
+    })
+    .catch(function() {
+      dishes = local || [];
+      renderAll();
+    });
+}
+
+function saveDishes() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
+  syncHash(JSON.stringify(dishes));
+  pushToGitHub();
+}
+
+async function pushToGitHub() {
+  var token = getToken();
+  if (!token) return;
+  try {
+    var content = JSON.stringify(dishes, null, 2);
+    var body = { message: 'update dishes', content: btoa(unescape(encodeURIComponent(content))) };
+    if (!dishesSha) {
+      var info = await fetch(GH_API, { headers: { Authorization: 'token ' + token } }).then(function(r){ return r.json(); });
+      dishesSha = info.sha;
+    }
+    body.sha = dishesSha;
+    var res = await fetch(GH_API, {
+      method: 'PUT',
+      headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if (data.content && data.content.sha) dishesSha = data.content.sha;
+  } catch(e) { console.log('sync err:', e); }
+}
+
+function syncHash(s) {
+  var h = 0;
+  for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+  lastSyncHash = h;
+}
+
+// Poll for remote changes every 5s
+setInterval(function() {
+  fetch(GH_RAW + '?t=' + Date.now(), { cache: 'no-store' })
+    .then(function(r) { return r.json(); })
+    .then(function(remote) {
+      var s = JSON.stringify(remote);
+      var h = 0;
+      for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+      if (h !== lastSyncHash && Array.isArray(remote)) {
+        lastSyncHash = h;
+        dishes = remote;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
+        renderAll();
+      }
+    })
+    .catch(function(){});
+}, 5000);
+
+function renderAll() {
+  renderDishList();
+  renderSyncStatus();
+}
+
+function saveToken() {
+  var t = document.getElementById('tokenInput').value.trim();
+  if (!t) return;
+  setToken(t);
+  document.getElementById('tokenSetup').style.display = 'none';
+  renderSyncStatus();
+  // trigger initial sync
+  dishesSha = null;
+  pushToGitHub();
+}
+
+function renderSyncStatus() {
+  var el = document.getElementById('syncStatus');
+  var setup = document.getElementById('tokenSetup');
+  if (getToken()) {
+    el.textContent = '☁️ 已同步';
+    setup.style.display = 'none';
+  } else {
+    el.textContent = '💻 仅本机';
+    setup.style.display = 'block';
+  }
+}
+
 const FOOD_ICONS = ['🍚','🍜','🍝','🥟','🍗','🥩','🥬','🍳','🍲','🦐','🐟','🥘','🧆','🌮','🍛','🍱','🍕','🥗','🍖','🥚','🫕','🍢','🍡','🥨','🥞','🧇','🍩','🥒'];
 const ICON_RULES = [
   ['虾','🦐'],['蟹','🦀'],['鱼','🐟'],['鱿','🦑'],['蚝','🦪'],['贝','🐚'],['螺','🐚'],
@@ -415,23 +540,6 @@ const ICON_RULES = [
   ['丸','🍡'],['子','🍡'],
   ['水果','🍉'],['苹果','🍎'],['橙','🍊'],['香蕉','🍌'],['西瓜','🍉'],['葡萄','🍇'],['草莓','🍓'],
 ];
-let dishes = [];
-let editingIndex = -1;
-let editingIcon = '🍽️';
-
-// --- Data ---
-function loadDishes() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    dishes = raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    dishes = [];
-  }
-}
-
-function saveDishes() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
-}
 
 function pickIcon(name) {
   for (var i = 0; i < ICON_RULES.length; i++) {
@@ -565,7 +673,6 @@ function randomPick() {
 
 // --- Init ---
 loadDishes();
-renderDishList();
 
 // keyboard: Enter to add
 document.getElementById('dishName').addEventListener('keydown', function(e) {
