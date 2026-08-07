@@ -147,57 +147,68 @@
   {
     "name": "榨菜肉丝面",
     "steps": "",
-    "icon": "🍜"
+    "icon": "🍜",
+    "category": "主食"
   },
   {
     "name": "鲜虾面",
     "steps": "",
-    "icon": "🦐"
+    "icon": "🦐",
+    "category": "主食"
   },
   {
     "name": "鸡蛋面",
     "steps": "",
-    "icon": "🥚"
+    "icon": "🥚",
+    "category": "主食"
   },
   {
     "name": "酸辣红薯粉",
     "steps": "",
-    "icon": "🍜"
+    "icon": "🍜",
+    "category": "主食"
   },
   {
     "name": "汤粉",
     "steps": "",
-    "icon": "🍜"
+    "icon": "🍜",
+    "category": "主食"
   },
   {
     "name": "炒米粉",
     "steps": "",
-    "icon": "🍜"
+    "icon": "🍜",
+    "category": "主食"
   },
   {
     "name": "蛋炒饭",
     "steps": "",
-    "icon": "🥚"
+    "icon": "🥚",
+    "category": "主食"
   },
   {
     "name": "白馒头",
     "steps": "",
-    "icon": "🍞"
+    "icon": "🍞",
+    "category": "主食"
   },
   {
     "name": "红糖馒头",
     "steps": "",
-    "icon": "🍞"
+    "icon": "🍞",
+    "category": "主食"
   },
   {
     "name": "榨菜牛肉包",
     "steps": "",
-    "icon": "🥟"
+    "icon": "🥟",
+    "category": "主食"
   },
   {
     "name": "鲜肉包",
     "steps": "",
-    "icon": "🥟"
+    "icon": "🥟",
+    "category": "主食"
   },
   {
     "name": "清炒花蟹",
