@@ -433,6 +433,13 @@ function saveDishes() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
 }
 
+function pickIcon(name) {
+  for (var i = 0; i < ICON_RULES.length; i++) {
+    if (name.indexOf(ICON_RULES[i][0]) !== -1) return ICON_RULES[i][1];
+  }
+  return FOOD_ICONS[Math.floor(Math.random() * FOOD_ICONS.length)];
+}
+
 // --- Menu ---
 function addDish() {
   const nameEl = document.getElementById('dishName');
@@ -440,7 +447,7 @@ function addDish() {
   const name = nameEl.value.trim();
   const steps = stepsEl.value.trim();
   if (!name) { nameEl.focus(); return; }
-  var icon = FOOD_ICONS[Math.floor(Math.random() * FOOD_ICONS.length)];
+  var icon = pickIcon(name);
   dishes.push({ name, steps, icon });
   saveDishes();
   nameEl.value = '';
