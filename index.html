@@ -407,7 +407,8 @@ let editingIcon = '🍽️';
 let dishesSha = null;
 let lastRemoteHash = '';
 let pushing = false;
-let pushCooldown = 0; // cooldown after push to avoid cache race
+let pendingPush = false;
+let pushCooldown = 0;
 
 // --- Data: GitHub-synced (local first, cloud sync in background) ---
 function loadDishes() {
