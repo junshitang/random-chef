@@ -420,7 +420,7 @@ function loadDishes() {
     .then(function(r) { return r.json(); })
     .then(function(remote) {
       remote = Array.isArray(remote) ? remote : [];
-      syncHash(JSON.stringify(remote));
+      lastRemoteHash = hashStr(JSON.stringify(remote));
       // Merge: remote wins unless it's empty and local has data
       if (remote.length === 0 && local && local.length > 0) {
         dishes = local;
@@ -441,7 +441,7 @@ function loadDishes() {
 
 function saveDishes() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
-  syncHash(JSON.stringify(dishes));
+  pushing = true;
   pushToGitHub();
 }
 
