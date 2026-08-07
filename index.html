@@ -930,7 +930,7 @@ function renderIconPicker() {
 }
 
 function renderDishList() {
-  if (currentView !== 'menu' && currentView !== 'staple') return;
+  if (currentView !== 'menu' && currentView !== 'staple' && currentView !== 'adun') return;
   const container = document.getElementById('dishList');
   const search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
   // Filter by category
