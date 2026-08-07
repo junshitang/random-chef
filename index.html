@@ -1019,19 +1019,6 @@ function renderDishList() {
   if (currentView !== 'menu' && currentView !== 'staple' && currentView !== 'adun') return;
   const container = document.getElementById('dishList');
   const search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
-  // Filter by category
-  var STAPLE_NAMES = ['榨菜肉丝面','鲜虾面','鸡蛋面','酸辣红薯粉','汤粉','炒米粉','蛋炒饭','白馒头','红糖馒头','榨菜牛肉包','鲜肉包'];
-  var ADUN_NAMES = ['胡萝卜炒肉','花菜炒肉','莲藕炒肉','鸡翅','炖牛排','海带排骨','山药排骨','豌豆','土豆炒肉','照烧鸡腿','清蒸鲈鱼','清蒸多宝鱼','红烧小黄鱼','豆腐肉沫','鸡蛋饼','牛肝菌炒肉','杏鲍菇炒肉'];
-  function isStaple(d) {
-    if (d.category === '主食') return true;
-    if (d.category === undefined && STAPLE_NAMES.indexOf(d.name) >= 0) return true;
-    return false;
-  }
-  function isAdun(d) {
-    if (d.category === '阿墩') return true;
-    if (d.category === undefined && ADUN_NAMES.indexOf(d.name) >= 0) return true;
-    return false;
-  }
   let pool = dishes;
   if (currentView === 'staple') {
     pool = dishes.filter(isStaple);
