@@ -1053,17 +1053,20 @@ function esc(s) {
 
 // --- Random Pick ---
 function randomPick() {
+  var pool = dishes.filter(function(d) { return d.category !== '主食'; });
+  if (pool.length === 0 && dishes.length > 0) {
+    pool = dishes.slice();
+  }
   var count = parseInt(document.getElementById('pickCount').value) || 3;
-  count = Math.max(1, Math.min(count, dishes.length));
+  count = Math.max(1, Math.min(count, pool.length));
   document.getElementById('pickCount').value = count;
 
   var area = document.getElementById('resultArea');
-  if (dishes.length === 0) {
+  if (pool.length === 0) {
     area.innerHTML = '<div class="empty-hint">请先在菜单里添加几道菜 🥢</div>';
     return;
   }
 
-  var pool = dishes.slice();
   for (var i = pool.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
     var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
