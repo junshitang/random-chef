@@ -292,5 +292,17 @@
     "steps": "",
     "icon": "🐟",
     "category": "阿墩"
+  },
+  {
+    "name": "豆腐肉沫",
+    "steps": "",
+    "icon": "🧈",
+    "category": "阿墩"
+  },
+  {
+    "name": "鸡蛋饼",
+    "steps": "",
+    "icon": "🍳",
+    "category": "阿墩"
   }
 ]
