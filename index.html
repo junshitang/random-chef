@@ -406,7 +406,8 @@ let editingIndex = -1;
 let editingIcon = '🍽️';
 let dishesSha = null;
 let lastRemoteHash = '';
-let pushing = false;  // prevent poll from overwriting during push
+let pushing = false;
+let pushCooldown = 0; // cooldown after push to avoid cache race
 
 // --- Data: GitHub-synced (local first, cloud sync in background) ---
 function loadDishes() {
