@@ -415,17 +415,21 @@ function loadDishes() {
     if (raw) local = JSON.parse(raw);
   } catch(e) {}
 
-  // Try GitHub first (source of truth), fall back to local
   fetch(GH_RAW + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function(r) { return r.json(); })
     .then(function(remote) {
+      remote = Array.isArray(remote) ? remote : [];
       syncHash(JSON.stringify(remote));
-      if (!local || JSON.stringify(remote) !== JSON.stringify(local)) {
-        dishes = Array.isArray(remote) ? remote : [];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
-      } else {
+      // Merge: remote wins unless it's empty and local has data
+      if (remote.length === 0 && local && local.length > 0) {
         dishes = local;
+        pushToGitHub(); // push local to cloud
+      } else if (remote.length >= (local ? local.length : 0)) {
+        dishes = remote;
+      } else {
+        dishes = local || remote;
       }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
       renderAll();
     })
     .catch(function() {
