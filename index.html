@@ -249,6 +249,23 @@ body {
   border-color: #ffe0cc;
 }
 .dish-card:active { transform: translateY(0); }
+.dish-card.selected {
+  border-color: #4caf50;
+  background: #f6fdf6;
+  box-shadow: 0 0 0 2px rgba(76,175,80,0.15);
+}
+.dish-check {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #4caf50;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
 .dish-card .dish-avatar {
   width: 48px; height: 48px;
   border-radius: 14px;
@@ -647,6 +664,7 @@ function switchView(view) {
   }
   if (view === 'picker') {
     document.getElementById('resultArea').innerHTML = '';
+    renderSelectedList();
   } else {
     renderDishList();
   }
