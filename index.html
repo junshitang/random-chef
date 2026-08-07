@@ -17,6 +17,7 @@
   --danger: #c0392b;
   --shadow: 0 2px 12px rgba(60,30,10,0.06);
   --radius: 14px;
+  --sidebar-w: 200px;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
@@ -31,28 +32,124 @@ body {
 .header {
   background: linear-gradient(135deg, #e07b39 0%, #c96a2e 100%);
   color: #fff;
-  padding: 20px 24px;
+  padding: 16px 24px;
   text-align: center;
   box-shadow: 0 2px 16px rgba(224,123,57,0.25);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: 0.02em; }
-.header p { font-size: 0.85rem; opacity: 0.85; margin-top: 2px; }
+.header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: 0.02em; }
+.header p { font-size: 0.8rem; opacity: 0.85; }
+.header-text { text-align: center; }
 
-/* Container */
-.container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 20px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+/* Hamburger */
+.hamburger {
+  display: none;
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 31;
+  padding: 6px;
+  line-height: 1;
 }
-@media (max-width: 680px) {
-  .container { grid-template-columns: 1fr; }
+
+/* === App Layout === */
+.app-layout {
+  display: flex;
+  min-height: calc(100vh - 100px);
 }
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  padding: 12px 0;
+  overflow-y: auto;
+  position: sticky;
+  top: 60px;
+  max-height: calc(100vh - 60px);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+  user-select: none;
+  text-decoration: none;
+}
+.nav-item:hover { background: #fefcf9; }
+.nav-item.active {
+  background: var(--tag-bg);
+  color: var(--accent);
+  font-weight: 700;
+  border-left-color: var(--accent);
+}
+.nav-item .badge {
+  margin-left: auto;
+  font-size: 0.72rem;
+  background: var(--border);
+  color: var(--text2);
+  padding: 2px 8px;
+  border-radius: 10px;
+  min-width: 22px;
+  text-align: center;
+}
+.nav-item.active .badge {
+  background: var(--accent);
+  color: #fff;
+}
+.nav-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 16px;
+}
+.nav-section-title {
+  padding: 8px 20px 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Sidebar backdrop (mobile) */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 39;
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  max-width: 760px;
+}
+
+/* View toggling */
+.view { display: none; }
+.view.active { display: block; }
 
 /* Cards */
 .card {
@@ -70,7 +167,6 @@ body {
   gap: 8px;
 }
 
-/* ====== Left: Menu Management ====== */
 /* Add form */
 .add-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .add-form input, .add-form textarea {
@@ -103,9 +199,7 @@ body {
 .add-form button:hover { background: #c96a2e; }
 
 /* Search */
-.search-box {
-  margin-bottom: 12px;
-}
+.search-box { margin-bottom: 12px; }
 .search-box input {
   width: 100%;
   padding: 8px 14px;
@@ -117,29 +211,27 @@ body {
 }
 .search-box input:focus { outline: none; border-color: var(--accent); }
 
-/* Dish list */
+/* Dish list — single column */
 .dish-list {
-  max-height: 420px;
+  max-height: 440px;
   overflow-y: auto;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.dish-list .dish-item {
-  flex: 0 0 calc(50% - 4px);
+  flex-direction: column;
+  gap: 6px;
 }
 .dish-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-radius: 10px;
   border: 1px solid var(--border);
   cursor: pointer;
   transition: all 0.15s;
+  width: 100%;
 }
 .dish-item:hover { border-color: var(--accent2); background: #fefcf9; }
-.dish-item .name { font-weight: 600; font-size: 0.95rem; }
+.dish-item .name { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
 .dish-item .actions { display: flex; gap: 4px; flex-shrink: 0; }
 .dish-item .actions button {
   width: 30px; height: 30px;
@@ -217,10 +309,9 @@ body {
 }
 .icon-picker span:hover { background: #fef0e4; }
 .icon-picker span.selected { border-color: var(--accent); background: var(--tag-bg); }
+.dish-icon { font-size: 1.15rem; }
 
-.dish-icon { font-size: 1.15rem; margin-right: 2px; }
-
-/* ====== Right: Random Picker ====== */
+/* Picker */
 .picker-section {
   display: flex;
   flex-direction: column;
@@ -308,7 +399,7 @@ body {
   line-height: 1.8;
 }
 
-/* stats */
+/* Stats / footer */
 .stats-row {
   display: flex;
   gap: 20px;
@@ -318,65 +409,119 @@ body {
 }
 .stats-row span { font-weight: 600; color: var(--accent); }
 
-/* Footer */
 .footer {
   text-align: center;
-  padding: 30px;
+  padding: 24px;
   color: var(--text2);
   font-size: 0.8rem;
+}
+
+/* === Mobile === */
+@media (max-width: 680px) {
+  .hamburger { display: block; }
+  .header-text p { display: none; }
+  .header h1 { font-size: 1.2rem; }
+
+  .app-layout { flex-direction: column; }
+
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100vh;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.15);
+    max-height: 100vh;
+    padding-top: 60px;
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  .sidebar-backdrop.show { display: block; }
+
+  .main-content { padding: 16px; }
 }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>🍳 今天吃什么</h1>
-  <p>配好菜单，随机点菜，告别选择困难</p>
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="菜单">☰</button>
+  <div class="header-text">
+    <h1>🍳 今天吃什么</h1>
+    <p>配好菜单，随机点菜，告别选择困难</p>
+  </div>
 </div>
 
-<div class="container">
-  <!-- Left: Menu Management -->
-  <div class="card" id="menu-panel">
-    <div class="card-title">📋 我的菜单</div>
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
-    <div class="add-form" id="addForm">
-      <input type="text" id="dishName" placeholder="菜名，如：番茄炒蛋" maxlength="30">
-      <textarea id="dishSteps" placeholder="做法步骤..." rows="2"></textarea>
-      <button onclick="addDish()">➕ 添加</button>
+<div class="app-layout">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-item active" data-view="menu" onclick="switchView('menu')">
+      📋 我的菜单
+      <span class="badge" id="navDishCount">0</span>
     </div>
+    <div class="nav-item" data-view="picker" onclick="switchView('picker')">
+      🎲 随机点菜
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-section-title">分类</div>
+    <div class="nav-item" data-view="staple" onclick="switchView('staple')">
+      🍚 主食
+      <span class="badge" style="background:var(--border);color:var(--text2);font-size:0.65rem">即将上线</span>
+    </div>
+  </aside>
 
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="🔍 搜索菜名..." oninput="renderDishList()">
-    </div>
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+    <!-- View: Menu Management -->
+    <div class="view active" id="viewMenu">
+      <div class="card">
+        <div class="card-title">📋 我的菜单</div>
 
-    <div class="dish-list" id="dishList"></div>
-    <div class="stats-row" style="margin-top:12px">
-      共 <span id="dishCount">0</span> 道菜
-      <span style="margin-left:8px;font-size:0.75rem;color:var(--text2)" id="syncStatus"></span>
-    </div>
-    <div id="tokenSetup" style="display:none;margin-top:8px;padding:10px;background:#fff8f0;border-radius:10px;border:1px dashed var(--accent2)">
-      <p style="font-size:0.8rem;color:var(--text2);margin-bottom:6px">配置 GitHub Token 即可开启跨设备同步：</p>
-      <div style="display:flex;gap:6px">
-        <input type="password" id="tokenInput" placeholder="粘贴 GitHub Token..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:0.8rem;font-family:inherit">
-        <button onclick="saveToken()" style="padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:0.8rem;cursor:pointer;white-space:nowrap">保存</button>
+        <div class="add-form" id="addForm">
+          <input type="text" id="dishName" placeholder="菜名，如：番茄炒蛋" maxlength="30">
+          <textarea id="dishSteps" placeholder="做法步骤..." rows="2"></textarea>
+          <button onclick="addDish()">➕ 添加</button>
+        </div>
+
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="🔍 搜索菜名..." oninput="renderDishList()">
+        </div>
+
+        <div class="dish-list" id="dishList"></div>
+        <div class="stats-row" style="margin-top:12px">
+          共 <span id="dishCount">0</span> 道菜
+          <span style="margin-left:8px;font-size:0.75rem;color:var(--text2)" id="syncStatus"></span>
+        </div>
+        <div id="tokenSetup" style="display:none;margin-top:8px;padding:10px;background:#fff8f0;border-radius:10px;border:1px dashed var(--accent2)">
+          <p style="font-size:0.8rem;color:var(--text2);margin-bottom:6px">配置 GitHub Token 即可开启跨设备同步：</p>
+          <div style="display:flex;gap:6px">
+            <input type="password" id="tokenInput" placeholder="粘贴 GitHub Token..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:0.8rem;font-family:inherit">
+            <button onclick="saveToken()" style="padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:0.8rem;cursor:pointer;white-space:nowrap">保存</button>
+          </div>
+        </div>
       </div>
-      <p style="font-size:0.7rem;color:var(--text2);margin-top:4px">仅需 devicescope，<a href="https://github.com/settings/tokens" target="_blank" style="color:var(--accent)">创建 Token</a> — 勾选 repo 权限</p>
     </div>
-  </div>
 
-  <!-- Right: Random Picker -->
-  <div class="card">
-    <div class="card-title">🎲 随机点菜</div>
-    <div class="picker-section">
-      <div class="picker-row">
-        <label for="pickCount">来几道？</label>
-        <input type="number" id="pickCount" value="3" min="1" max="20">
-        <span style="color:var(--text2);font-size:0.85rem">道</span>
+    <!-- View: Random Picker -->
+    <div class="view" id="viewPicker">
+      <div class="card">
+        <div class="card-title">🎲 随机点菜</div>
+        <div class="picker-section">
+          <div class="picker-row">
+            <label for="pickCount">来几道？</label>
+            <input type="number" id="pickCount" value="3" min="1" max="20">
+            <span style="color:var(--text2);font-size:0.85rem">道</span>
+          </div>
+          <button class="btn-random" onclick="randomPick()">🎰 随机点菜</button>
+          <div class="result-area" id="resultArea"></div>
+        </div>
       </div>
-      <button class="btn-random" onclick="randomPick()">🎰 随机点菜</button>
-      <div class="result-area" id="resultArea"></div>
     </div>
-  </div>
+  </main>
 </div>
 
 <div class="footer">数据云端同步 · 所有设备共享菜单</div>
@@ -409,10 +554,42 @@ let lastRemoteHash = '';
 let pushing = false;
 let pendingPush = false;
 let pushCooldown = 0;
+let currentView = 'menu';
+
+// --- View switching ---
+function switchView(view) {
+  currentView = view;
+  // Update nav active states
+  var items = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < items.length; i++) {
+    items[i].classList.toggle('active', items[i].getAttribute('data-view') === view);
+  }
+  // Toggle views
+  document.getElementById('viewMenu').classList.toggle('active', view === 'menu');
+  document.getElementById('viewPicker').classList.toggle('active', view === 'picker');
+  // Close mobile sidebar
+  closeSidebar();
+  // Re-render
+  if (view === 'menu') {
+    renderDishList();
+  } else if (view === 'picker') {
+    document.getElementById('resultArea').innerHTML = '';
+  }
+}
+
+function toggleSidebar() {
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('sidebarBackdrop');
+  sidebar.classList.toggle('open');
+  backdrop.classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarBackdrop').classList.remove('show');
+}
 
 // --- Data: GitHub-synced (local first, cloud sync in background) ---
 function loadDishes() {
-  // Show local data immediately
   var local = null;
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
@@ -423,20 +600,17 @@ function loadDishes() {
     renderAll();
   }
 
-  // Then sync with cloud
   fetch(GH_RAW + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function(r) { return r.json(); })
     .then(function(remote) {
       remote = Array.isArray(remote) ? remote : [];
       lastRemoteHash = hashStr(JSON.stringify(remote));
-      // Deep merge: union by name, local wins for same name
       var merged = {};
       for (var i = 0; i < remote.length; i++) { merged[remote[i].name] = remote[i]; }
       if (local) { for (var i = 0; i < local.length; i++) { merged[local[i].name] = local[i]; } }
       var mergedArr = [];
       for (var k in merged) { mergedArr.push(merged[k]); }
       dishes = mergedArr.length > 0 ? mergedArr : (local || remote);
-      // Push if local had items not in remote
       if (local && mergedArr.length > remote.length) {
         pushToGitHub();
       }
@@ -481,9 +655,8 @@ async function pushToGitHub() {
     if (data.content && data.content.sha) {
       dishesSha = data.content.sha;
       lastRemoteHash = hashStr(JSON.stringify(dishes));
-      pushCooldown = Date.now() + 15000; // 15s cooldown for cache to update
+      pushCooldown = Date.now() + 15000;
     } else {
-      // push failed (likely SHA conflict) → reset for retry
       dishesSha = null;
     }
   } catch(e) {
@@ -497,17 +670,15 @@ async function pushToGitHub() {
   }
 }
 
-function syncHash(s) { lastRemoteHash = hashStr(s); } // deprecated, kept for compat
 function hashStr(s) {
   var h = 0;
   for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
   return h;
 }
 
-// Poll for remote changes every 5s (skip if local push in progress)
 setInterval(function() {
   if (pushing) return;
-  if (Date.now() < pushCooldown) return; // skip during cooldown
+  if (Date.now() < pushCooldown) return;
   fetch(GH_RAW + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function(r) { return r.json(); })
     .then(function(remote) {
@@ -516,7 +687,7 @@ setInterval(function() {
       if (h !== lastRemoteHash) {
         lastRemoteHash = h;
         dishes = remote;
-        dishesSha = null;  // reset SHA after remote change
+        dishesSha = null;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
         renderAll();
       }
@@ -527,6 +698,11 @@ setInterval(function() {
 function renderAll() {
   renderDishList();
   renderSyncStatus();
+  renderNavBadges();
+}
+
+function renderNavBadges() {
+  document.getElementById('navDishCount').textContent = dishes.length;
 }
 
 function saveToken() {
@@ -535,7 +711,6 @@ function saveToken() {
   setToken(t);
   document.getElementById('tokenSetup').style.display = 'none';
   renderSyncStatus();
-  // trigger initial sync
   dishesSha = null;
   pushToGitHub();
 }
@@ -545,10 +720,10 @@ function renderSyncStatus() {
   var setup = document.getElementById('tokenSetup');
   if (getToken()) {
     el.textContent = '☁️ 已同步';
-    setup.style.display = 'none';
+    if (setup) setup.style.display = 'none';
   } else {
     el.textContent = '💻 仅本机';
-    setup.style.display = 'block';
+    if (setup) setup.style.display = 'block';
   }
 }
 
@@ -643,6 +818,7 @@ function renderIconPicker() {
 }
 
 function renderDishList() {
+  if (currentView !== 'menu') return;
   const container = document.getElementById('dishList');
   const search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
   let filtered = dishes;
@@ -678,11 +854,10 @@ function randomPick() {
 
   var area = document.getElementById('resultArea');
   if (dishes.length === 0) {
-    area.innerHTML = '<div class="empty-hint">请先在左边菜单里添加几道菜 🥢</div>';
+    area.innerHTML = '<div class="empty-hint">请先在菜单里添加几道菜 🥢</div>';
     return;
   }
 
-  // Fisher-Yates shuffle, pick first N
   var pool = dishes.slice();
   for (var i = pool.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
@@ -700,31 +875,26 @@ function randomPick() {
       '</div>';
   }).join('');
 
-  // auto-open the first dish
   setTimeout(function() {
     var first = area.querySelector('.result-dish');
     if (first) first.classList.add('open');
   }, 100);
 
-  // scroll to result on mobile
   area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // --- Init ---
 loadDishes();
 
-// keyboard: Enter to add
 document.getElementById('dishName').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') addDish();
 });
 document.getElementById('pickCount').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') randomPick();
 });
-// click outside modal to close
 document.getElementById('editModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
-// ESC to close modal
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeModal();
 });
