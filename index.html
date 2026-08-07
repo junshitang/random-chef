@@ -391,6 +391,7 @@ const STORAGE_KEY = 'random_chef_dishes';
 const FOOD_ICONS = ['🍚','🍜','🍝','🥟','🍗','🥩','🥬','🍳','🍲','🦐','🐟','🥘','🧆','🌮','🍛','🍱','🍕','🥗','🍖','🥚','🫕','🥘','🍢','🍡','🥨','🥞','🧇','🍩'];
 let dishes = [];
 let editingIndex = -1;
+let editingIcon = '🍽️';
 
 // --- Data ---
 function loadDishes() {
@@ -431,8 +432,10 @@ function deleteDish(index) {
 
 function openEdit(index) {
   editingIndex = index;
+  editingIcon = dishes[index].icon || '🍽️';
   document.getElementById('editName').value = dishes[index].name;
   document.getElementById('editSteps').value = dishes[index].steps;
+  renderIconPicker();
   document.getElementById('editModal').classList.add('show');
   document.getElementById('editName').focus();
 }
