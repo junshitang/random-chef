@@ -462,8 +462,12 @@ async function pushToGitHub() {
       body: JSON.stringify(body)
     });
     var data = await res.json();
-    if (data.content && data.content.sha) dishesSha = data.content.sha;
+    if (data.content && data.content.sha) {
+      dishesSha = data.content.sha;
+      lastRemoteHash = hashStr(JSON.stringify(dishes));
+    }
   } catch(e) { console.log('sync err:', e); }
+  pushing = false;
 }
 
 function syncHash(s) {
