@@ -908,14 +908,18 @@ function renderDishList() {
   if (filtered.length === 0) {
     container.innerHTML = '<div class="empty-hint">' + (dishes.length === 0 ? '还没有菜，在上方添加吧 👆' : '没有匹配的菜') + '</div>';
   } else {
-    container.innerHTML = filtered.map(function(d, i) {
+    container.innerHTML = filtered.map(function(d) {
       var realIndex = dishes.indexOf(d);
-      return '<div class="dish-item" onclick="openEdit(' + realIndex + ')">' +
-        '<span class="name"><span class="dish-icon">' + (d.icon || '🍽️') + '</span> ' + esc(d.name) + '</span>' +
-        '<span class="actions" onclick="event.stopPropagation()">' +
+      return '<div class="dish-card" onclick="openEdit(' + realIndex + ')">' +
+        '<div class="dish-avatar">' + (d.icon || '🍽️') + '</div>' +
+        '<div class="dish-info">' +
+        '<div class="dish-name">' + esc(d.name) + '</div>' +
+        '<div class="dish-desc">' + esc(d.steps || '暂无做法') + '</div>' +
+        '</div>' +
+        '<div class="dish-actions" onclick="event.stopPropagation()">' +
         '<button class="btn-edit" onclick="openEdit(' + realIndex + ')" title="编辑">✎</button>' +
         '<button class="btn-del" onclick="deleteDish(' + realIndex + ')" title="删除">✕</button>' +
-        '</span></div>';
+        '</div></div>';
     }).join('');
   }
   document.getElementById('dishCount').textContent = dishes.length;
