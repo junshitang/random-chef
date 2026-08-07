@@ -470,22 +470,23 @@ async function pushToGitHub() {
   pushing = false;
 }
 
-function syncHash(s) {
+function syncHash(s) { lastRemoteHash = hashStr(s); } // deprecated, kept for compat
+function hashStr(s) {
   var h = 0;
   for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
-  lastSyncHash = h;
+  return h;
 }
 
-// Poll for remote changes every 5s
+// Poll for remote changes every 5s (skip if local push in progress)
 setInterval(function() {
+  if (pushing) return;
   fetch(GH_RAW + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function(r) { return r.json(); })
     .then(function(remote) {
-      var s = JSON.stringify(remote);
-      var h = 0;
-      for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
-      if (h !== lastSyncHash && Array.isArray(remote)) {
-        lastSyncHash = h;
+      if (!Array.isArray(remote)) return;
+      var h = hashStr(JSON.stringify(remote));
+      if (h !== lastRemoteHash) {
+        lastRemoteHash = h;
         dishes = remote;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
         renderAll();
