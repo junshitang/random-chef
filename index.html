@@ -447,7 +447,7 @@ function saveDishes() {
 
 async function pushToGitHub() {
   var token = getToken();
-  if (!token) return;
+  if (!token) { pushing = false; return; }
   try {
     var content = JSON.stringify(dishes, null, 2);
     var body = { message: 'update dishes', content: btoa(unescape(encodeURIComponent(content))) };
