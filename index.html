@@ -397,7 +397,8 @@ function addDish() {
   const name = nameEl.value.trim();
   const steps = stepsEl.value.trim();
   if (!name) { nameEl.focus(); return; }
-  dishes.push({ name, steps });
+  var icon = FOOD_ICONS[Math.floor(Math.random() * FOOD_ICONS.length)];
+  dishes.push({ name, steps, icon });
   saveDishes();
   nameEl.value = '';
   stepsEl.value = '';
@@ -449,7 +450,7 @@ function renderDishList() {
     container.innerHTML = filtered.map(function(d, i) {
       var realIndex = dishes.indexOf(d);
       return '<div class="dish-item" onclick="openEdit(' + realIndex + ')">' +
-        '<span class="name">' + esc(d.name) + '</span>' +
+        '<span class="name"><span class="dish-icon">' + (d.icon || '🍽️') + '</span> ' + esc(d.name) + '</span>' +
         '<span class="actions" onclick="event.stopPropagation()">' +
         '<button class="btn-edit" onclick="openEdit(' + realIndex + ')" title="编辑">✎</button>' +
         '<button class="btn-del" onclick="deleteDish(' + realIndex + ')" title="删除">✕</button>' +
