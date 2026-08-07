@@ -558,9 +558,12 @@ body {
     <!-- View: Menu Management -->
     <div class="view active" id="viewMenu">
       <div class="card">
-        <div class="card-title">📋 我的菜单</div>
+        <div class="card-title">
+          📋 我的菜单
+          <button class="btn-add-toggle" id="btnAddToggle" onclick="toggleAddForm()" title="添加菜品">＋</button>
+        </div>
 
-        <div class="add-form" id="addForm">
+        <div class="add-form" id="addForm" style="display:none">
           <input type="text" id="dishName" placeholder="菜名，如：番茄炒蛋" maxlength="30">
           <textarea id="dishSteps" placeholder="做法步骤..." rows="2"></textarea>
           <button onclick="addDish()">➕ 添加</button>
