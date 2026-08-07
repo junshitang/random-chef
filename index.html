@@ -1120,10 +1120,7 @@ function randomPick() {
   }
   renderDishList();
   renderSelectedList();
-
-  // Bark push notification
-  var names = picked.map(function(d) { return (d.icon || '🍽️') + ' ' + d.name; }).join(', ');
-  fetch(BARK_URL + encodeURIComponent('🍳 今日点菜') + '/' + encodeURIComponent(names), { mode: 'no-cors' }).catch(function(){});
+  barkSelected();
 
   area.innerHTML = picked.map(function(d, idx) {
     return '<div class="result-dish" onclick="this.classList.toggle(\'open\')">' +
