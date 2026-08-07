@@ -972,11 +972,17 @@ function renderDishList() {
   const container = document.getElementById('dishList');
   const search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
   // Filter by category
+  var STAPLE_NAMES = ['榨菜肉丝面','鲜虾面','鸡蛋面','酸辣红薯粉','汤粉','炒米粉','蛋炒饭','白馒头','红糖馒头','榨菜牛肉包','鲜肉包'];
+  function isStaple(d) {
+    if (d.category === '主食') return true;
+    if (d.category === undefined && STAPLE_NAMES.indexOf(d.name) >= 0) return true;
+    return false;
+  }
   let pool = dishes;
   if (currentView === 'staple') {
-    pool = dishes.filter(function(d) { return d.category === '主食'; });
+    pool = dishes.filter(isStaple);
   } else if (currentView === 'menu') {
-    pool = dishes.filter(function(d) { return d.category !== '主食'; });
+    pool = dishes.filter(function(d) { return !isStaple(d); });
   }
   let filtered = pool;
   if (search) {
