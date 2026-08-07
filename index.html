@@ -453,8 +453,10 @@ function loadDishes() {
 
 function saveDishes() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
-  pushing = true;
-  pushToGitHub();
+  if (!pushing) {
+    pushing = true;
+    pushToGitHub();
+  }
 }
 
 async function pushToGitHub() {
