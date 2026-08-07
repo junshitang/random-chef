@@ -428,12 +428,16 @@ function loadDishes() {
       remote = Array.isArray(remote) ? remote : [];
       lastRemoteHash = hashStr(JSON.stringify(remote));
       if (remote.length === 0 && local && local.length > 0) {
+        // cloud empty, local has data → push local up
         dishes = local;
         pushToGitHub();
-      } else if (remote.length >= (local ? local.length : 0)) {
-        dishes = remote;
+      } else if (local && local.length > remote.length) {
+        // local has more → keep local, push to cloud
+        dishes = local;
+        pushToGitHub();
       } else {
-        dishes = local || remote;
+        // cloud wins (more or equal)
+        dishes = remote.length > 0 ? remote : (local || []);
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
       renderAll();
