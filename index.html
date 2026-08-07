@@ -521,6 +521,25 @@ document.getElementById('editModal').addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeModal();
 });
+
+// --- Auto-reload when source changes ---
+(function() {
+  var lastHash = null;
+  async function hash(str) {
+    var buf = new TextEncoder().encode(str);
+    var digest = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(digest)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+  }
+  setInterval(function() {
+    fetch(location.href, { cache: 'no-store' }).then(function(r) {
+      return r.text();
+    }).then(async function(html) {
+      var h = await hash(html);
+      if (lastHash && h !== lastHash) location.reload();
+      lastHash = h;
+    }).catch(function(){});
+  }, 2000);
+})();
 </script>
 
 </body>
