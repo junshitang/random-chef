@@ -488,7 +488,7 @@ function randomPick() {
     return '<div class="result-dish" onclick="this.classList.toggle(\'open\')">' +
       '<div class="result-dish-header">' +
       '<span class="arrow">▶</span> ' +
-      '<span>' + (idx + 1) + '. ' + esc(d.name) + '</span>' +
+      '<span>' + (d.icon || '🍽️') + ' ' + (idx + 1) + '. ' + esc(d.name) + '</span>' +
       '</div>' +
       '<div class="result-dish-body"><p>' + esc(d.steps || '(暂无做法)') + '</p></div>' +
       '</div>';
