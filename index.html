@@ -950,9 +950,9 @@ function renderDishList() {
   if (currentView === 'staple') {
     pool = dishes.filter(isStaple);
   } else if (currentView === 'adun') {
-    pool = dishes.filter(function(d) { return d.category === '阿墩'; });
+    pool = dishes.filter(isAdun);
   } else if (currentView === 'menu') {
-    pool = dishes.filter(function(d) { return !isStaple(d) && d.category !== '阿墩'; });
+    pool = dishes.filter(function(d) { return !isStaple(d) && !isAdun(d); });
   }
   let filtered = pool;
   if (search) {
@@ -985,7 +985,7 @@ function esc(s) {
 
 // --- Random Pick ---
 function randomPick() {
-  var pool = dishes.filter(function(d) { return d.category !== '主食' && d.category !== '阿墩'; });
+  var pool = dishes.filter(function(d) { return !isStaple(d) && !isAdun(d); });
   if (pool.length === 0 && dishes.length > 0) {
     pool = dishes.slice();
   }
