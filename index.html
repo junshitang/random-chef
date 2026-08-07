@@ -179,9 +179,41 @@ body {
   align-items: center;
   gap: 8px;
 }
+.btn-add-toggle {
+  margin-left: auto;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-btn);
+  line-height: 1;
+}
+.btn-add-toggle:hover { transform: scale(1.1); }
+.btn-add-toggle.active { transform: rotate(45deg); background: #bbb; box-shadow: none; }
 
 /* Add form */
-.add-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.25s ease, margin 0.3s ease;
+}
+.add-form.expanded {
+  max-height: 300px;
+  opacity: 1;
+}
 .add-form input, .add-form textarea {
   width: 100%;
   padding: 12px 16px;
@@ -670,6 +702,17 @@ function closeSidebar() {
   document.getElementById('sidebarBackdrop').classList.remove('show');
 }
 
+function toggleAddForm() {
+  var form = document.getElementById('addForm');
+  var btn = document.getElementById('btnAddToggle');
+  var expanded = form.classList.toggle('expanded');
+  form.style.display = expanded ? 'flex' : 'none';
+  btn.classList.toggle('active', expanded);
+  if (expanded) {
+    document.getElementById('dishName').focus();
+  }
+}
+
 // --- Data: GitHub-synced (local first, cloud sync in background) ---
 function loadDishes() {
   var local = null;
@@ -856,7 +899,12 @@ function addDish() {
   saveDishes();
   nameEl.value = '';
   stepsEl.value = '';
-  nameEl.focus();
+  // Collapse form after adding
+  var form = document.getElementById('addForm');
+  var btn = document.getElementById('btnAddToggle');
+  form.classList.remove('expanded');
+  form.style.display = 'none';
+  btn.classList.remove('active');
   renderDishList();
 }
 
