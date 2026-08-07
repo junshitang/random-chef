@@ -997,6 +997,24 @@ function renderDishList() {
   document.getElementById('dishCount').textContent = pool.length;
 }
 
+function renderSelectedList() {
+  var area = document.getElementById('selectedArea');
+  if (!area) return;
+  if (selectedIndices.length === 0) {
+    area.innerHTML = '<div class="empty-hint">还没有点菜，去菜单里点击菜品选择吧 👆</div>';
+  } else {
+    area.innerHTML = selectedIndices.map(function(idx, i) {
+      var d = dishes[idx];
+      if (!d) return '';
+      return '<div class="selected-item" onclick="toggleSelect(' + idx + ')">' +
+        '<span class="selected-icon">' + (d.icon || '🍽️') + '</span>' +
+        '<span class="selected-name">' + esc(d.name) + '</span>' +
+        '<span class="selected-remove">✕</span>' +
+        '</div>';
+    }).join('');
+  }
+}
+
 function esc(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
