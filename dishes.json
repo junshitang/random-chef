@@ -214,5 +214,83 @@
     "name": "清炒花蟹",
     "steps": "",
     "icon": "🦀"
+  },
+  {
+    "name": "胡萝卜炒肉",
+    "steps": "",
+    "icon": "🥕",
+    "category": "阿墩"
+  },
+  {
+    "name": "花菜炒肉",
+    "steps": "",
+    "icon": "🥬",
+    "category": "阿墩"
+  },
+  {
+    "name": "莲藕炒肉",
+    "steps": "",
+    "icon": "🥬",
+    "category": "阿墩"
+  },
+  {
+    "name": "鸡翅",
+    "steps": "",
+    "icon": "🍗",
+    "category": "阿墩"
+  },
+  {
+    "name": "炖牛排",
+    "steps": "",
+    "icon": "🥩",
+    "category": "阿墩"
+  },
+  {
+    "name": "海带排骨",
+    "steps": "",
+    "icon": "🍖",
+    "category": "阿墩"
+  },
+  {
+    "name": "山药排骨",
+    "steps": "",
+    "icon": "🍖",
+    "category": "阿墩"
+  },
+  {
+    "name": "豌豆",
+    "steps": "",
+    "icon": "🫛",
+    "category": "阿墩"
+  },
+  {
+    "name": "土豆炒肉",
+    "steps": "",
+    "icon": "🥔",
+    "category": "阿墩"
+  },
+  {
+    "name": "照烧鸡腿",
+    "steps": "",
+    "icon": "🍗",
+    "category": "阿墩"
+  },
+  {
+    "name": "清蒸鲈鱼",
+    "steps": "",
+    "icon": "🐟",
+    "category": "阿墩"
+  },
+  {
+    "name": "清蒸多宝鱼",
+    "steps": "",
+    "icon": "🐟",
+    "category": "阿墩"
+  },
+  {
+    "name": "红烧小黄鱼",
+    "steps": "",
+    "icon": "🐟",
+    "category": "阿墩"
   }
 ]

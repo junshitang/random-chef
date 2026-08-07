@@ -763,9 +763,9 @@ function renderAll() {
 }
 
 function renderNavBadges() {
-  document.getElementById('navDishCount').textContent = dishes.length;
-  var stapleCount = dishes.filter(function(d) { return d.category === '主食'; }).length;
-  document.getElementById('navStapleCount').textContent = stapleCount;
+  document.getElementById('navDishCount').textContent = dishes.filter(function(d) { return !d.category; }).length;
+  document.getElementById('navStapleCount').textContent = dishes.filter(function(d) { return d.category === '主食'; }).length;
+  document.getElementById('navAdunCount').textContent = dishes.filter(function(d) { return d.category === '阿墩'; }).length;
 }
 
 function saveToken() {
@@ -976,7 +976,7 @@ function esc(s) {
 
 // --- Random Pick ---
 function randomPick() {
-  var pool = dishes.filter(function(d) { return d.category !== '主食'; });
+  var pool = dishes.filter(function(d) { return d.category !== '主食' && d.category !== '阿墩'; });
   if (pool.length === 0 && dishes.length > 0) {
     pool = dishes.slice();
   }
