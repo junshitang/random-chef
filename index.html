@@ -684,7 +684,7 @@ function switchView(view) {
   // Update card title
   var cardTitle = document.querySelector('#viewMenu .card-title');
   if (cardTitle) {
-    cardTitle.innerHTML = view === 'staple' ? '🍚 主食' : '📋 我的菜单 <button class=\"btn-add-toggle\" id=\"btnAddToggle\" onclick=\"toggleAddForm()\" title=\"添加菜品\">＋</button>';
+    cardTitle.innerHTML = view === 'staple' ? '🍚 主食 <button class=\"btn-add-toggle\" id=\"btnAddToggle\" onclick=\"toggleAddForm()\" title=\"添加菜品\">＋</button>' : '📋 我的菜单 <button class=\"btn-add-toggle\" id=\"btnAddToggle\" onclick=\"toggleAddForm()\" title=\"添加菜品\">＋</button>';
   }
   closeSidebar();
   if (view === 'picker') {
@@ -735,7 +735,20 @@ function loadDishes() {
       lastRemoteHash = hashStr(JSON.stringify(remote));
       var merged = {};
       for (var i = 0; i < remote.length; i++) { merged[remote[i].name] = remote[i]; }
-      if (local) { for (var i = 0; i < local.length; i++) { merged[local[i].name] = local[i]; } }
+      if (local) {
+        for (var i = 0; i < local.length; i++) {
+          var ln = local[i];
+          merged[ln.name] = ln;
+          // Migration: backfill category from remote for existing local dishes
+          if (!ln.category) {
+            for (var j = 0; j < remote.length; j++) {
+              if (remote[j].name === ln.name && remote[j].category) {
+                merged[ln.name].category = remote[j].category;
+              }
+            }
+          }
+        }
+      }
       var mergedArr = [];
       for (var k in merged) { mergedArr.push(merged[k]); }
       dishes = mergedArr.length > 0 ? mergedArr : (local || remote);
@@ -831,6 +844,8 @@ function renderAll() {
 
 function renderNavBadges() {
   document.getElementById('navDishCount').textContent = dishes.length;
+  var stapleCount = dishes.filter(function(d) { return d.category === '主食'; }).length;
+  document.getElementById('navStapleCount').textContent = stapleCount;
 }
 
 function saveToken() {
@@ -898,7 +913,9 @@ function addDish() {
   const steps = stepsEl.value.trim();
   if (!name) { nameEl.focus(); return; }
   var icon = pickIcon(name);
-  dishes.push({ name, steps, icon });
+  var newDish = { name: name, steps: steps, icon: icon };
+  if (currentView === 'staple') newDish.category = '主食';
+  dishes.push(newDish);
   saveDishes();
   nameEl.value = '';
   stepsEl.value = '';
@@ -951,16 +968,23 @@ function renderIconPicker() {
 }
 
 function renderDishList() {
-  if (currentView !== 'menu') return;
+  if (currentView !== 'menu' && currentView !== 'staple') return;
   const container = document.getElementById('dishList');
   const search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
-  let filtered = dishes;
+  // Filter by category
+  let pool = dishes;
+  if (currentView === 'staple') {
+    pool = dishes.filter(function(d) { return d.category === '主食'; });
+  } else if (currentView === 'menu') {
+    pool = dishes.filter(function(d) { return d.category !== '主食'; });
+  }
+  let filtered = pool;
   if (search) {
-    filtered = dishes.filter(function(d) { return d.name.toLowerCase().includes(search); });
+    filtered = pool.filter(function(d) { return d.name.toLowerCase().includes(search); });
   }
 
   if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty-hint">' + (dishes.length === 0 ? '还没有菜，在上方添加吧 👆' : '没有匹配的菜') + '</div>';
+    container.innerHTML = '<div class="empty-hint">' + (pool.length === 0 ? '还没有菜，在上方添加吧 👆' : '没有匹配的菜') + '</div>';
   } else {
     container.innerHTML = filtered.map(function(d) {
       var realIndex = dishes.indexOf(d);
@@ -976,7 +1000,7 @@ function renderDishList() {
         '</div></div>';
     }).join('');
   }
-  document.getElementById('dishCount').textContent = dishes.length;
+  document.getElementById('dishCount').textContent = pool.length;
 }
 
 function esc(s) {
