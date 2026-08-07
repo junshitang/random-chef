@@ -640,7 +640,7 @@ body {
 <script>
 const STORAGE_KEY = 'random_chef_dishes';
 const GH_API = 'https://api.github.com/repos/junshitang/random-chef/contents/dishes.json';
-const GH_RAW = 'https://raw.githubusercontent.com/junshitang/random-chef/master/dishes.json';
+const GH_RAW = 'dishes.json';
 function getToken() { return localStorage.getItem('rc_gh_token') || ''; }
 function setToken(t) { localStorage.setItem('rc_gh_token', t); }
 let dishes = [];
