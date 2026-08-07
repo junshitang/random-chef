@@ -449,10 +449,17 @@ function saveEdit() {
   const name = document.getElementById('editName').value.trim();
   const steps = document.getElementById('editSteps').value.trim();
   if (!name) return;
-  dishes[editingIndex] = { name, steps };
+  dishes[editingIndex] = { name, steps, icon: editingIcon };
   saveDishes();
   closeModal();
   renderDishList();
+}
+
+function renderIconPicker() {
+  var container = document.getElementById('iconPicker');
+  container.innerHTML = FOOD_ICONS.map(function(icon) {
+    return '<span class="' + (icon === editingIcon ? 'selected' : '') + '" onclick="editingIcon=\'' + icon + '\';renderIconPicker()">' + icon + '</span>';
+  }).join('');
 }
 
 function renderDishList() {
