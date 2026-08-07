@@ -205,6 +205,21 @@ body {
 .modal-cancel { background: #f0f0f0; color: #555; }
 .modal-save { background: var(--accent); color: #fff; }
 
+.icon-picker {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 12px; justify-content: center;
+}
+.icon-picker span {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.15s;
+}
+.icon-picker span:hover { background: #fef0e4; }
+.icon-picker span.selected { border-color: var(--accent); background: var(--tag-bg); }
+
+.dish-icon { font-size: 1.15rem; margin-right: 2px; }
+
 /* ====== Right: Random Picker ====== */
 .picker-section {
   display: flex;
@@ -361,6 +376,7 @@ body {
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <h3>✏️ 编辑</h3>
+    <div class="icon-picker" id="iconPicker"></div>
     <input type="text" id="editName" placeholder="菜名" maxlength="30">
     <textarea id="editSteps" placeholder="做法步骤..." rows="3"></textarea>
     <div class="modal-btns">
