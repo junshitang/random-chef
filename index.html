@@ -1044,6 +1044,16 @@ function randomPick() {
   }
   var picked = pool.slice(0, count);
 
+  // Add picked dishes to selection
+  for (var k = 0; k < picked.length; k++) {
+    var idx = dishes.indexOf(picked[k]);
+    if (idx >= 0 && selectedIndices.indexOf(idx) < 0) {
+      selectedIndices.push(idx);
+    }
+  }
+  renderDishList();
+  renderSelectedList();
+
   area.innerHTML = picked.map(function(d, idx) {
     return '<div class="result-dish" onclick="this.classList.toggle(\'open\')">' +
       '<div class="result-dish-header">' +
