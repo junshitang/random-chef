@@ -1042,7 +1042,7 @@ document.addEventListener('keydown', function(e) {
     return Array.from(new Uint8Array(digest)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
   }
   setInterval(function() {
-    fetch(location.href, { cache: 'no-store' }).then(function(r) {
+    fetch(location.href.split('?')[0] + '?t=' + Date.now(), { cache: 'no-store' }).then(function(r) {
       return r.text();
     }).then(async function(html) {
       var h = await hash(html);
