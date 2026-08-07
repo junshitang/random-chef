@@ -873,6 +873,7 @@ function addDish() {
   var icon = pickIcon(name);
   var newDish = { name: name, steps: steps, icon: icon };
   if (currentView === 'staple') newDish.category = '主食';
+  else if (currentView === 'adun') newDish.category = '阿墩';
   dishes.push(newDish);
   saveDishes();
   nameEl.value = '';
@@ -939,8 +940,10 @@ function renderDishList() {
   let pool = dishes;
   if (currentView === 'staple') {
     pool = dishes.filter(isStaple);
+  } else if (currentView === 'adun') {
+    pool = dishes.filter(function(d) { return d.category === '阿墩'; });
   } else if (currentView === 'menu') {
-    pool = dishes.filter(function(d) { return !isStaple(d); });
+    pool = dishes.filter(function(d) { return !isStaple(d) && d.category !== '阿墩'; });
   }
   let filtered = pool;
   if (search) {
