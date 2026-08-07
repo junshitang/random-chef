@@ -660,6 +660,16 @@ function toggleSelect(index) {
   }
   renderDishList();
   renderSelectedList();
+  barkSelected();
+}
+
+function barkSelected() {
+  if (selectedIndices.length === 0) return;
+  var names = selectedIndices.map(function(idx) {
+    var d = dishes[idx];
+    return (d ? (d.icon || '🍽️') + ' ' + d.name : '');
+  }).join(', ');
+  fetch(BARK_URL + encodeURIComponent('🍳 点菜') + '/' + encodeURIComponent(names), { mode: 'no-cors' }).catch(function(){});
 }
 
 function clearSelection() {
