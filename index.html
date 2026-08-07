@@ -477,6 +477,7 @@ async function pushToGitHub() {
     if (data.content && data.content.sha) {
       dishesSha = data.content.sha;
       lastRemoteHash = hashStr(JSON.stringify(dishes));
+      pushCooldown = Date.now() + 8000; // 8s cooldown
     }
   } catch(e) { console.log('sync err:', e); }
   pushing = false;
@@ -492,6 +493,7 @@ function hashStr(s) {
 // Poll for remote changes every 5s (skip if local push in progress)
 setInterval(function() {
   if (pushing) return;
+  if (Date.now() < pushCooldown) return; // skip during cooldown
   fetch(GH_RAW + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function(r) { return r.json(); })
     .then(function(remote) {
