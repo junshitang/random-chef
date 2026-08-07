@@ -32,25 +32,27 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  line-height: 1.6;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Header */
 .header {
-  background: linear-gradient(135deg, #e07b39 0%, #c96a2e 100%);
+  background: var(--accent-gradient);
   color: #fff;
-  padding: 16px 24px;
+  padding: 14px 24px;
   text-align: center;
-  box-shadow: 0 2px 16px rgba(224,123,57,0.25);
+  box-shadow: 0 2px 20px rgba(224,123,57,0.2);
   position: sticky;
   top: 0;
   z-index: 30;
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(10px);
 }
-.header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: 0.02em; }
-.header p { font-size: 0.8rem; opacity: 0.85; }
+.header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
+.header p { font-size: 0.75rem; opacity: 0.8; font-weight: 400; }
 .header-text { text-align: center; }
 
 /* Hamburger */
