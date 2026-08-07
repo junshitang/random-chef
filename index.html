@@ -404,8 +404,9 @@ function setToken(t) { localStorage.setItem('rc_gh_token', t); }
 let dishes = [];
 let editingIndex = -1;
 let editingIcon = '🍽️';
-let dishesSha = null;   // GitHub file SHA for updates
-let lastSyncHash = '';  // detect remote changes
+let dishesSha = null;
+let lastRemoteHash = '';
+let pushing = false;  // prevent poll from overwriting during push
 
 // --- Data: GitHub-synced ---
 function loadDishes() {
